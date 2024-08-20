@@ -6,8 +6,7 @@ namespace N_Health_API.Core
 {
     class DBSQLPostgre
     {
-        //private static string connString = "Server=localhost;Database=roof_truss_boq_service;Port=8888;User Id=roof_truss_boq_service;Password=LEGKDryAV8p8QQhY";
-        private static string connString = "Server=pg-25b7556e-paweenapinthong-fe13.i.aivencloud.com;Database=nhealth_api;Port=10460;User Id=avnadmin;";
+        private static string connString = "Server=localhost;Database=roof_truss_boq_service;Port=8888;User Id=roof_truss_boq_service;Password=LEGKDryAV8p8QQhY";        
         public DBSQLPostgre()
         {
             LoadParam();
