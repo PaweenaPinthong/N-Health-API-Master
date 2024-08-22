@@ -24,7 +24,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "VC";
-                    var lastId = "select vehicle_id from vehicle where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select vehicle_id from vehicle where created_datetime is not null order by created_datetime desc limit 1";
                     data.Vehicle_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }

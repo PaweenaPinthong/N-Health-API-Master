@@ -36,7 +36,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "PE";
-                    var lastId = "select permission_id from permission where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select permission_id from permission where created_datetime is not null order by created_datetime desc limit 1";
                     data.Permission.Permission_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }

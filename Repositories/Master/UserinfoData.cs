@@ -6,6 +6,7 @@ using N_Health_API.Models.Shared;
 using N_Health_API.RepositoriesInterface.Master;
 using N_Health_API.ServicesInterfece;
 using NpgsqlTypes;
+using System.Collections.Generic;
 using System.Data;
 
 namespace N_Health_API.Repositories.Master
@@ -18,6 +19,15 @@ namespace N_Health_API.Repositories.Master
             DateTime dateTime = new DateTimeUtils().NowDateTime();
             try
             {
+                List<string> arrSql = new List<string>();
+                if (data != null)
+                {
+                    string typeStr = "US";
+                    var lastId = "select user_id from userinfo where created_datetime is not null order by created_datetime desc limit 1";
+                    data.User_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                    arrSql.Add(lastId);
+                }
+
                 var qUser = "INSERT INTO userinfo " +
                     "(user_id, user_code, \"password\", user_name, employee_id" +
                     ", prefix_name, \"name\", lastname" +
@@ -25,7 +35,7 @@ namespace N_Health_API.Repositories.Master
                     ", telephone_no, email" +
                     ", location_id, department_id, permission_id" +
                     ", active, created_by, created_datetime, modified_by, modified_datetime) " +
-                    "VALUES(@user_id ,@user_code ,@password ,@user_name ,@employee_id " +
+                    "VALUES(@id ,@code ,@password ,@user_name ,@employee_id " +
                     ",@prefix_name ,@name ,@lastname " +
                     ",@user_type ,@user_level ,@team " +
                     ",@telephone_no ,@email " +
@@ -33,8 +43,8 @@ namespace N_Health_API.Repositories.Master
                     ",@active ,@created_by ,@created_datetime ,@modified_by ,@modified_datetime);\r\n";
 
                 List<DBParameter> parameters = new List<DBParameter>();
-                parameters.Add(new DBParameter { Name = "user_id", Value = data?.User_Id, Type = NpgsqlDbType.Integer });
-                parameters.Add(new DBParameter { Name = "user_code", Value = data?.User_Code, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "id", Value = data?.User_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "code", Value = data?.User_Code, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "password", Value = data?.Password, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "user_name", Value = data?.User_Name, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "employee_id", Value = data?.Employee_Id, Type = NpgsqlDbType.Varchar });
@@ -55,7 +65,9 @@ namespace N_Health_API.Repositories.Master
                 parameters.Add(new DBParameter { Name = "modified_by", Value = userName, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
                                 
-                result = DBSQLPostgre.SQLPostgresExecutionCommand(qUser, parameters);
+                //result = DBSQLPostgre.SQLPostgresExecutionCommand(qUser, parameters);
+                arrSql.Add(qUser);
+                result = await DBSQLPostgre.SQLPostgresExecutionAddData(arrSql, parameters);
                 return result;
             }
             catch (Exception ex)

@@ -22,7 +22,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "VT";
-                    var lastId = "select price_id from price where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select price_id from price where created_datetime is not null order by created_datetime desc limit 1";
                     data.Price_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
