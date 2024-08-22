@@ -3,22 +3,22 @@ using N_Health_API.Models.Master;
 using N_Health_API.Models.Shared;
 using N_Health_API.RepositoriesInterface.Master;
 using N_Health_API.ServicesInterfece.Master;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace N_Health_API.Services.Master
 {
-    public class PriorityService : IPriorityService
+    public class PriorityJobTypeService : IPriorityJobTypeService
     {
         private IConfiguration _config;
-        private IPriorityData _repo;
+        private IPriorityJobTypeData _repo;
 
-        public PriorityService(IConfiguration config, IPriorityData repo)
+        public PriorityJobTypeService(IConfiguration config, IPriorityJobTypeData repo)
         {
             _config = config;
             _repo = repo;
         }
 
-        public async Task<MessageResponseModel> AddService(PriorityModel priorityModel, string? userCode)
+
+        public async Task<MessageResponseModel> AddService(PriorityJobtypeDataModel data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -26,9 +26,9 @@ namespace N_Health_API.Services.Master
             meg_res.Code = ReturnCode.SYSTEM_ERROR;
             meg_res.Success = false;
 
-            try 
+            try
             {
-                var result = await _repo.Add(priorityModel, userCode);
+                var result = await _repo.Add(data, userCode);
                 if (result != false)
                 {
                     meg_res.Success = true;
@@ -37,7 +37,8 @@ namespace N_Health_API.Services.Master
                     meg_res.Data = result;
                 }
                 return meg_res;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
                 return meg_res;
@@ -69,7 +70,7 @@ namespace N_Health_API.Services.Master
             }
         }
 
-        public async Task<MessageResponseModel> EditService(PriorityModel priorityModel, string? userCode)
+        public async Task<MessageResponseModel> EditService(PriorityJobtypeDataModel data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -79,7 +80,7 @@ namespace N_Health_API.Services.Master
 
             try
             {
-                var result = await _repo.Edit(priorityModel, userCode);
+                var result = await _repo.Edit(data, userCode);
                 if (result != false)
                 {
                     meg_res.Success = true;
@@ -105,8 +106,13 @@ namespace N_Health_API.Services.Master
             meg_res.Success = false;
             try
             {
-                var res = await _repo.GetById(id);//data main
-                PriorityModel? data = Util.ConvertDataTableToList<PriorityModel>(res).FirstOrDefault();
+                var res = await _repo.GetById(id);
+                var resJobType = await _repo.GetListJobTypeById(id);
+                PriorityJobtypeDataModelById data = new PriorityJobtypeDataModelById();
+                PriorityJobtypeModelById? pJobType = Util.ConvertDataTableToList<PriorityJobtypeModelById>(res).FirstOrDefault();
+                List<PriorityJobtypeJobtypeModelById> pJobTypelist = Util.ConvertDataTableToList<PriorityJobtypeJobtypeModelById>(resJobType);
+                data.PriorityJobtype = pJobType;
+                data.Jobtype = pJobTypelist;
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;
@@ -118,10 +124,9 @@ namespace N_Health_API.Services.Master
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
                 return meg_res;
             }
-
         }
 
-        public async Task<MessageResponseModel> SearchService(SearchPriorityModel dataSearch)
+        public async Task<MessageResponseModel> SearchService(SearchPriorityJobtypeModel? dataSearch)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -131,9 +136,9 @@ namespace N_Health_API.Services.Master
             try
             {
                 var res = await _repo.Search(dataSearch);
-                var recordData = Util.ConvertDataTableToList<PriorityModel>(res.Item1);
+                var recordData = Util.ConvertDataTableToList<SearchPriorityJobtypeResponseModel>(res.Item1);
                 var countRows = res.Item2;
-                var response = new PaginatedListModel<PriorityModel>(recordData, (int)countRows, dataSearch.PageNumber, dataSearch.PageSize);
+                var response = new PaginatedListModel<SearchPriorityJobtypeResponseModel>(recordData, (int)countRows, dataSearch.PageNumber, dataSearch.PageSize);
 
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
