@@ -11,9 +11,9 @@ namespace N_Health_API.Models.Master
     }
     public class SearchVehicleTypeModel : RequestParameterModel
     {
-        public string Vehicle_Type_Code { get; set; } = string.Empty;
-        public string Vehicle_Type_Name { get; set; } = string.Empty;
-        public bool Active { get; set; }
+        public string? Vehicle_Type_Code { get; set; } = string.Empty;
+        public string? Vehicle_Type_Name { get; set; } = string.Empty;
+        public bool? Active { get; set; }
     }
 
     public class VehicleTypeRequest

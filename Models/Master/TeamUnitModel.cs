@@ -17,7 +17,7 @@ namespace N_Health_API.Models.Master
     {
         public string? Team { get; set; } = string.Empty;
         public string? Team_Unit_Name { get; set; } = string.Empty;//Unit
-        public bool Active { get; set; }
+        public bool? Active { get; set; }
     }
 
     public class TeamUnitRequest

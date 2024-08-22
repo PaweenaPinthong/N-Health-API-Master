@@ -18,6 +18,14 @@ namespace N_Health_API.Repositories.Master
             DateTime dateTime = new DateTimeUtils().NowDateTime();
             try
             {
+                List<string> arrSql = new List<string>();
+                if (data != null)
+                {
+                    string typeStr = "VT";
+                    var lastId = "select price_id from price where modified_datetime is not null order by modified_datetime desc limit 1";
+                    data.Price_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                    arrSql.Add(lastId);
+                }
                 var query = "INSERT INTO price " +
                     "(price_id, price_code " +
                     ",location_id ,team " +
@@ -25,7 +33,8 @@ namespace N_Health_API.Repositories.Master
                     ",price_single ,price_multi " +
                     ",penalty_rate,penalty_unit " +
                     ", active, created_by, created_datetime, modified_by, modified_datetime) " +
-                    "VALUES(@price_id ,@price_code " +
+                    "VALUES(" +
+                    "@id ,@code " +
                     ",@location_id ,@team " +
                     ",@priority_id,@department_id  " +
                     ",@price_single ,@price_multi " +
@@ -33,8 +42,8 @@ namespace N_Health_API.Repositories.Master
                     ",@active ,@created_by ,@created_datetime ,@modified_by ,@modified_datetime);\r\n";
 
                 List<DBParameter> parameters = new List<DBParameter>();
-                parameters.Add(new DBParameter { Name = "price_id", Value = data?.Price_Id, Type = NpgsqlDbType.Integer });
-                parameters.Add(new DBParameter { Name = "price_code", Value = data?.Price_Code, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "id", Value = data?.Price_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "code", Value = data?.Price_Code, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "location_id", Value = data?.Location_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "team", Value = data?.Team, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "priority_id", Value = data?.Priority_Id, Type = NpgsqlDbType.Integer });
@@ -49,7 +58,9 @@ namespace N_Health_API.Repositories.Master
                 parameters.Add(new DBParameter { Name = "modified_by", Value = userCode, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
 
-                result = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
+                arrSql.Add(query);
+                result = await DBSQLPostgre.SQLPostgresExecutionAddData(arrSql, parameters);
+                //result = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
                 return result;
             }
             catch 
@@ -205,10 +216,8 @@ namespace N_Health_API.Repositories.Master
             {
                 string condition = string.Empty;
 
-                if (data?.Active != null)//status
-                {
-                    condition = string.Format(condition + " p.active = {0}", data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " p.active = {0}", data.Active) : " p.active in (true,false)";
                 //Location_Name
                 condition = condition + (data?.Location_Id is not null ? string.Format(" and p.location_id = {0}", data?.Location_Id) : "");
                 //Priority
@@ -233,7 +242,7 @@ namespace N_Health_API.Repositories.Master
                                  " left join priority pt um on p.priority_id = pt.priority_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                        + $" ORDER BY p.modified_datetime OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                        + $" ORDER BY p.modified_datetime desc OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
                 var totalRows = "select  count(p.price_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 

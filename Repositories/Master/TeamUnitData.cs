@@ -5,6 +5,7 @@ using N_Health_API.Models.Master;
 using N_Health_API.Models.Shared;
 using N_Health_API.RepositoriesInterface.Master;
 using NpgsqlTypes;
+using System.Collections.Generic;
 using System.Data;
 
 namespace N_Health_API.Repositories.Master
@@ -17,19 +18,30 @@ namespace N_Health_API.Repositories.Master
             DateTime dateTime = new DateTimeUtils().NowDateTime();
             try
             {
+                List<string> arrSql = new List<string>();
+                if (data != null)
+                {
+                    string typeStr = "VT";
+                    var lastId = "select team_unit_id from team_unit where modified_datetime is not null order by modified_datetime desc limit 1";
+                    data.Team_Unit_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                    arrSql.Add(lastId);
+                }
                 var query = "INSERT INTO team_unit " +
                     "(team_unit_id" +
-                    ",team_unite_code, team_unit_name " +
+                    ",team_unite_code" +
+                    ",team_unit_name " +
                     ",location_id ,team " +
                     ", active, created_by, created_datetime, modified_by, modified_datetime) " +
-                    "VALUES(@team_unit_id" +
-                    ",@team_unite_code, @team_unit_name" +
+                    "VALUES(" +
+                    "@id " +
+                    ",@code " +
+                    ",@team_unit_name" +
                     ",@location_id ,@team " +
                     ",@active ,@created_by ,@created_datetime ,@modified_by ,@modified_datetime);\r\n";
 
                 List<DBParameter> parameters = new List<DBParameter>();
-                parameters.Add(new DBParameter { Name = "team_unit_id", Value = data?.Team_Unit_Id, Type = NpgsqlDbType.Integer });
-                parameters.Add(new DBParameter { Name = "team_unit_code", Value = data?.Team_Unit_Code, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "id", Value = data?.Team_Unit_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "code", Value = data?.Team_Unit_Code, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "team_unit_name", Value = data?.Team_Unit_Name, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "location_id", Value = data?.Location_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "team", Value = data?.Team, Type = NpgsqlDbType.Varchar });
@@ -39,7 +51,9 @@ namespace N_Health_API.Repositories.Master
                 parameters.Add(new DBParameter { Name = "modified_by", Value = userCode, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
 
-                result = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
+                arrSql.Add(query);
+                result = await DBSQLPostgre.SQLPostgresExecutionAddData(arrSql, parameters);
+                //result = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
                 return result;
             }
             catch
@@ -191,10 +205,8 @@ namespace N_Health_API.Repositories.Master
             {
                 string condition = string.Empty;
 
-                if (data?.Active != null)//status
-                {
-                    condition = string.Format(condition + " tu.active = {0}", data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " tu.active = {0}", data.Active) : " tu.active in (true,false)";
                 //Team
                 condition = condition + (!string.IsNullOrEmpty(data?.Team) ? string.Format(" and tu.team = '{0}'", data?.Team) : "");
                 //Unit
@@ -218,7 +230,7 @@ namespace N_Health_API.Repositories.Master
                                  " left join userinfo um on tu.modified_by = um.user_code ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                        + $" ORDER BY tu.team_unit_name OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                        + $" ORDER BY tu.modified_datetime desc OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
                 var totalRows = "select  count(tu.team_unit_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 

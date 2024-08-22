@@ -242,16 +242,29 @@ namespace N_Health_API.Repositories.Master
             MessageResponseModel meg_res = new MessageResponseModel();
             try
             {
-                var query = "SELECT u.* " +
-                    ",concat(un.\"name\",' ',un.lastname ) as Full_Name" +
-                    " FROM public.userinfo u " +
-                    " inner join userinfo un on u.user_code = un.user_code ";
+                var query = "SELECT " +
+                    " u.user_code" +
+                    ",u.team" +
+                    ",u.user_name" +
+                    ",u.employee_id" +
+                    ",u.name" +
+                    ",u.lastname" +
+                    ",u.telephone_no" +
+                    ",lc.location_name" +
+                    ",concat(uc.\"name\",' ',uc.lastname ) as created_by" +
+                    ",concat(um.\"name\",' ',um.lastname ) as modified_by" +
+                    ",u.created_datetime" +
+                    ",u.modified_datetime " +
+                    
+                " FROM public.userinfo u " +
+                    " left join location lc on u.location_id = lc.location_id" +
+                    " left join userinfo uc on u.created_by = uc.user_code " +
+                    " left join userinfo um on u.modified_by = um.user_code "
+                    ;
                 string condition = string.Empty;
 
-                if (data?.Active != null)//status
-                {
-                    condition = string.Format(condition + " u.active = {0}", data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " u.active = {0}", data.Active) : " u.active in (true,false)";
 
                 if (!string.IsNullOrEmpty(data?.User_Name))//Username
                 {
@@ -274,14 +287,15 @@ namespace N_Health_API.Repositories.Master
                 {
                     query = query + " where " + condition;
                 }
-                query = query + $" ORDER BY u.user_name OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                query = query + $" ORDER BY u.modified_by desc OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
                 ////query = query + "select  count(permission_id) as count_rows from permission; ";
                 //var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
 
                 List<string> arrSql = new List<string>();
                 arrSql.Add(query);
-                arrSql.Add("select  count(user_id) as count_rows from userinfo; ");
+                var totalRows = "select count(u.user_id) as count_rows from userinfo u " + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+                arrSql.Add(totalRows);
                 var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
 
 
