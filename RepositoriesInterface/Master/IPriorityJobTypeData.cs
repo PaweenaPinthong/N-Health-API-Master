@@ -1,4 +1,5 @@
 ﻿using N_Health_API.Models.Master;
+using N_Health_API.Models.Shared;
 using System.Data;
 
 namespace N_Health_API.RepositoriesInterface.Master
@@ -11,5 +12,7 @@ namespace N_Health_API.RepositoriesInterface.Master
         Task<DataTable> GetListJobTypeById(int id);
         Task<bool> ChangeActive(int id, bool isActive, string? userCode);
         Task<(DataTable, long)> Search(SearchPriorityJobtypeModel? dataSearch);
+        Task<MessageResponseModel> CheckDupData(PriorityJobtypeDataModel data);
+
     }
 }

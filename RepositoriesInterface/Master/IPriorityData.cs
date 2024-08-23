@@ -11,5 +11,7 @@ namespace N_Health_API.RepositoriesInterface.Master
         Task<DataTable> GetById(int id);
         Task<bool> ChangeActive(int id, bool isActive, string? userCode);
         Task<(DataTable, long)> Search(SearchPriorityModel? dataSearch);
+        Task<MessageResponseModel> CheckDupData(PriorityModel? priorityModel);
+
     }
 }

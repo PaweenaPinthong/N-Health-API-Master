@@ -23,7 +23,7 @@ namespace N_Health_API.Repositories.Master
                 if (priorityModel != null)
                 {
                     string typeStr = "PY";
-                    var lastId = "select priority_id from priority where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select priority_id from priority where created_datetime is not null order by created_datetime desc limit 1";
                     priorityModel.Priority_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
@@ -72,6 +72,43 @@ namespace N_Health_API.Repositories.Master
 
                 result = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
                 return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<MessageResponseModel> CheckDupData(PriorityModel? priorityModel)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            try
+            {
+                string? msg = string.Empty;
+                var query = "select p.*" +
+                            " from priority p " +
+                            " where p.priority_name = '{0}'" + (priorityModel?.Priority_Id is null || (priorityModel?.Priority_Id <= 0) ? "" : " and p.priority_id = " + priorityModel?.Priority_Id);
+
+                query = string.Format(query, priorityModel?.Priority_Name);
+
+                var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
+                if (result != null && result?.AsEnumerable().Count() > 0)
+                {
+                    msg = msg + string.Format("(Priority Name : {0}) ", priorityModel?.Priority_Name);
+                    meg_res.Success = true;
+                    meg_res.Message = msg;
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                    meg_res.Data = true;//data เป็น true ให้ถือว่าเจอข้อมูลซ้ำ
+                    return meg_res;
+                }
+                else
+                {
+                    meg_res.Success = true;
+                    meg_res.Message = ReturnMessage.SUCCESS;
+                    meg_res.Code = ReturnCode.SUCCESS;
+                    meg_res.Data = false;//data เป็น false ให้ถือว่าข้อมูลไม่ซ้ำ
+                    return meg_res;
+                }
             }
             catch
             {
