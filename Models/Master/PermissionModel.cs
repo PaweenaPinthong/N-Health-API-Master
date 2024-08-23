@@ -35,7 +35,7 @@ namespace N_Health_API.Models.Master
     {
         public string? Permission_Name { get; set; } = string.Empty;
         public string? Team { get; set; } = string.Empty;
-        public bool Active { get; set; }
+        public bool? Active { get; set; }
     }
 
     public class PermissionDataModel 

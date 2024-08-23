@@ -54,6 +54,6 @@ namespace N_Health_API.Models.Master
     {
         public string? User_Name { get; set; } = string.Empty;
         public string? Employee_Id { get; set; } = string.Empty;//รหัสพนักงาน
-        public bool Active { get; set; }
+        public bool? Active { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "CT";
-                    var lastId = "select cost_id from cost where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select cost_id from cost where created_datetime is not null order by created_datetime desc limit 1";
                     data.Cost.Cost_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
@@ -61,7 +61,7 @@ namespace N_Health_API.Repositories.Master
                         var query = "INSERT INTO cost_vehicle_type " +
                         " (cost_value, cost_per_unit_Type,created_by,created_datetime, modified_by, modified_datetime ,vehicle_type_id,active,cost_id) " +
                         " VALUES({0},'{1}','{2}','{3}','{4}','{5}',{6},{7},@id);\r\n";
-                        query = string.Format(query, item.Cost_Value, item.Cost_Per_Unit_Type, userCode, dateTime, userCode, dateTime, item.Vehicle_Type_Id,item.Active);
+                        query = string.Format(query, item.Cost_Value, item.Cost_Per_Unit_Type, userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"), userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"), item.Vehicle_Type_Id,item.Active);
                         qCost_vt.Append(query);
                     }
                 }
@@ -252,10 +252,8 @@ namespace N_Health_API.Repositories.Master
             {           
                 string condition = string.Empty;
 
-                if (data?.Active != null)//status
-                {
-                    condition = string.Format(condition + " c.active = {0}", data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " c.active = {0}", data.Active) : " c.active in (true,false)";
 
                 if (!string.IsNullOrEmpty(data?.Cost_Name))
                 {
@@ -291,7 +289,7 @@ namespace N_Health_API.Repositories.Master
                                  " left join userinfo um on c.modified_by = um.user_code " ;
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                        + $" ORDER BY c.modified_by OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                        + $" ORDER BY c.modified_by desc OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
  
                 var totalRows = "select  count(cost_id) as count_rows "+ qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
                 

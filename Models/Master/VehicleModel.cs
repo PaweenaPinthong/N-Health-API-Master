@@ -1,12 +1,16 @@
-﻿namespace N_Health_API.Models.Master
+﻿using N_Health_API.Models.Shared;
+
+namespace N_Health_API.Models.Master
 {
     public class VehicleModel : MasterModel
     {
         public int Vehicle_Id { get; set; }
         public string Vehicle_Code { get; set; } = string.Empty;
         public int Location_Id { get; set; }
+        public int Location_Name { get; set; }
         public string Team { get; set; } = string.Empty;
         public int Vehicle_Type_Id { get; set; }
+        public string Vehicle_Type_Name { get; set; } = string.Empty;
         public string Plate_No { get; set; } = string.Empty;
         public DateTime? Contract_Start { get; set; }
         public DateTime? Contract_End { get; set; }
@@ -19,6 +23,19 @@
         public DateTime? Gps_End { get; set; }
         public string Chassis_No { get; set; } = string.Empty;
         public decimal Fuel_Rate { get; set; }
+        public bool Active { get; set; }
+    }
+
+    public class SearchVehicleModel : RequestParameterModel
+    {
+        public string? Vehicle_Type_Name { get; set; } = string.Empty;
+        public string? Plate_No { get; set; } = string.Empty;  
+        public bool? Active { get; set; }
+    }
+
+    public class VehicleRequest
+    {
+        public int Vehicle_Id { get; set; }
         public bool Active { get; set; }
     }
 }

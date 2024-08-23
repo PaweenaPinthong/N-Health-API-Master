@@ -25,7 +25,7 @@ namespace N_Health_API.Models.Master
         public string? Location_Name { get; set; } = string.Empty;
         public int? Priority_Id { get; set; }
         public string? Priority_Name { get; set; } = string.Empty;
-        public bool Active { get; set; }
+        public bool? Active { get; set; }
     }
 
     public class PriceRequest

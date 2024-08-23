@@ -36,7 +36,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "PE";
-                    var lastId = "select permission_id from permission where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select permission_id from permission where created_datetime is not null order by created_datetime desc limit 1";
                     data.Permission.Permission_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
@@ -64,7 +64,7 @@ namespace N_Health_API.Repositories.Master
                     var query = "INSERT INTO permission_menu " +
                         "(permission_id, menu_id, view_flag, edit_flag, created_by, created_datetime, modified_by, modified_datetime) " +
                         "VALUES(@id,{0}, {1}, {2}, '{3}', '{4}', '{5}', '{6}');\r\n";
-                    query = string.Format(query,  data?.Permission?.Permission_Id, item.menu_id, item.view_flag, item.edit_flag, userCode, dateTime ,userCode ,dateTime);
+                    query = string.Format(query,  data?.Permission?.Permission_Id, item.menu_id, item.view_flag, item.edit_flag, userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"), userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"));
                     qPerm_Menu.Append(query);
                 }
                 arrSql.Add(qPermission + qPerm_Menu);
@@ -215,10 +215,9 @@ namespace N_Health_API.Repositories.Master
                     " left join userinfo um on pm.modified_by = um.user_code " 
                     ;
                 string condition = string.Empty;
-                if (data?.Active != null) 
-                {
-                    condition = string.Format(condition + " pm.active = {0}",data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " pm.active = {0}", data.Active) : " pm.active in (true,false)";
+                
                 if (!string.IsNullOrEmpty(data?.Team)) 
                 {
                     if (!string.IsNullOrEmpty(condition))
@@ -243,8 +242,8 @@ namespace N_Health_API.Repositories.Master
                 query = query + $" ORDER BY pm.permission_name OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
                 List<string> arrSql = new List<string>();
                 arrSql.Add(query);
-                //query = query + "select  count(permission_id) as count_rows from permission; ";
-                arrSql.Add("select  count(permission_id) as count_rows from permission; ");
+                var totalRows = "select count(pm.permission_id) as count_rows from permission pm " + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+                arrSql.Add(totalRows);
                 //var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
                 var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
 

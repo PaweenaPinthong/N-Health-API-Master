@@ -6,17 +6,19 @@ using N_Health_API.ServicesInterfece.Master;
 
 namespace N_Health_API.Services.Master
 {
-    public class TeamUnitService : ITeamUnitService
+    public class PriorityJobTypeService : IPriorityJobTypeService
     {
         private IConfiguration _config;
-        private ITeamUnitData _repo;
+        private IPriorityJobTypeData _repo;
 
-        public TeamUnitService(IConfiguration config, ITeamUnitData repo) 
-        { 
+        public PriorityJobTypeService(IConfiguration config, IPriorityJobTypeData repo)
+        {
             _config = config;
             _repo = repo;
         }
-        public async Task<MessageResponseModel> AddService(TeamUnitModel data, string? userCode)
+
+
+        public async Task<MessageResponseModel> AddService(PriorityJobtypeDataModel data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -26,32 +28,21 @@ namespace N_Health_API.Services.Master
 
             try
             {
-                //เช็คข้อมูลก่อน Insert ถ้า return true ถือว่ามีข้อมูลซ้ำ
-                var checkDup = await _repo.CheckDupData(data);
-                if (!Convert.ToBoolean(checkDup?.Data))//ไม่ซ้ำ
+                var result = await _repo.Add(data, userCode);
+                if (result != false)
                 {
-                    var result = await _repo.Add(data, userCode);
-                    if (result != false)
-                    {
-                        meg_res.Success = true;
-                        meg_res.Message = ReturnMessage.SUCCESS;
-                        meg_res.Code = ReturnCode.SUCCESS;
-                        meg_res.Data = result;
-                    }
+                    meg_res.Success = true;
+                    meg_res.Message = ReturnMessage.SUCCESS;
+                    meg_res.Code = ReturnCode.SUCCESS;
+                    meg_res.Data = result;
                 }
-                else //พบข้อมูลซ้ำ
-                {
-                    meg_res.Success = false;
-                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA, checkDup.Message);
-                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
-                }
-
+                return meg_res;
             }
             catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+                return meg_res;
             }
-            return meg_res;
         }
 
         public async Task<MessageResponseModel> ChangeActiveService(int id, bool isActive, string? userCode)
@@ -70,15 +61,16 @@ namespace N_Health_API.Services.Master
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;
                 meg_res.Data = result;
+                return meg_res;
             }
             catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+                return meg_res;
             }
-            return meg_res;
         }
 
-        public async Task<MessageResponseModel> EditService(TeamUnitModel data, string? userCode)
+        public async Task<MessageResponseModel> EditService(PriorityJobtypeDataModel data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -96,12 +88,13 @@ namespace N_Health_API.Services.Master
                     meg_res.Code = ReturnCode.SUCCESS;
                     meg_res.Data = result;
                 }
+                return meg_res;
             }
             catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+                return meg_res;
             }
-            return meg_res;
         }
 
         public async Task<MessageResponseModel> GetByIdService(int id)
@@ -114,21 +107,26 @@ namespace N_Health_API.Services.Master
             try
             {
                 var res = await _repo.GetById(id);
-                TeamUnitModel? data = Util.ConvertDataTableToList<TeamUnitModel>(res).FirstOrDefault();
+                var resJobType = await _repo.GetListJobTypeById(id);
+                PriorityJobtypeDataModelById data = new PriorityJobtypeDataModelById();
+                PriorityJobtypeModelById? pJobType = Util.ConvertDataTableToList<PriorityJobtypeModelById>(res).FirstOrDefault();
+                List<PriorityJobtypeJobtypeModelById> pJobTypelist = Util.ConvertDataTableToList<PriorityJobtypeJobtypeModelById>(resJobType);
+                data.PriorityJobtype = pJobType;
+                data.Jobtype = pJobTypelist;
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;
                 meg_res.Data = data;
+                return meg_res;
             }
             catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+                return meg_res;
             }
-
-            return meg_res;
         }
 
-        public async Task<MessageResponseModel> SearchService(SearchTeamUnitModel data)
+        public async Task<MessageResponseModel> SearchService(SearchPriorityJobtypeModel? dataSearch)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -137,24 +135,22 @@ namespace N_Health_API.Services.Master
             meg_res.Success = false;
             try
             {
-                var res = await _repo.Search(data);
-                var recordData = Util.ConvertDataTableToList<TeamUnitModel>(res.Item1);
+                var res = await _repo.Search(dataSearch);
+                var recordData = Util.ConvertDataTableToList<SearchPriorityJobtypeResponseModel>(res.Item1);
                 var countRows = res.Item2;
-                var response = new PaginatedListModel<TeamUnitModel>(recordData, (int)countRows, data.PageNumber, data.PageSize);
+                var response = new PaginatedListModel<SearchPriorityJobtypeResponseModel>(recordData, (int)countRows, dataSearch.PageNumber, dataSearch.PageSize);
 
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;
                 meg_res.Data = response;
+                return meg_res;
             }
             catch (Exception ex)
             {
                 meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+                return meg_res;
             }
-
-            return meg_res;
         }
-
-
     }
 }

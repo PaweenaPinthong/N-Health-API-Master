@@ -24,7 +24,7 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "VT";
-                    var lastId = "select vehicle_type_id from vehicle_type where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select vehicle_type_id from vehicle_type where created_datetime is not null order by created_datetime desc limit 1";
                     data.Vehicle_Type_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
@@ -191,10 +191,8 @@ namespace N_Health_API.Repositories.Master
             {
                 string condition = string.Empty;
 
-                if (data?.Active != null)//status
-                {
-                    condition = string.Format(condition + " v.active = {0}", data.Active);
-                }
+                //status
+                condition = data?.Active != null ? string.Format(condition + " v.active = {0}", data.Active) : " v.active in (true,false)";
                 //Vehicle_Type_Name
                 condition = condition + (!string.IsNullOrEmpty(data?.Vehicle_Type_Name)  ? string.Format(" and v.vehicle_type_name like '%{0}%'", data?.Vehicle_Type_Name) : "");
                 //Vehicle_Type_Code
@@ -215,7 +213,7 @@ namespace N_Health_API.Repositories.Master
                                  " left join userinfo um on v.modified_by = um.user_code ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                        + $" ORDER BY v.modified_datetime OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                        + $" ORDER BY v.modified_datetime desc OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
                 var totalRows = "select  count(v.vehicle_type_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 

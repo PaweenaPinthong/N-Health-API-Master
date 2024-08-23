@@ -31,7 +31,7 @@ namespace N_Health_API.Models.Master
     {        
         public string? Location_Name { get; set; } = string.Empty;
         public string? Cost_Name { get; set; } = string.Empty;
-        public bool Active { get; set; }
+        public bool? Active { get; set; }
     }
 
     public class CostRequest
