@@ -70,6 +70,12 @@ namespace N_Health_API.Helper
             var oDate = date.HasValue ? (date.Value.ToString("dd/MM/yyyy", Culture)) : "";
             return oDate;
         }
+        public static string ConvertDateTHToString(DateTime? date)
+        {
+            CultureInfo Culture = CultureInfo.GetCultureInfo("en-US");
+            var oDate = date.HasValue ? (date.Value.ToString("yyyy-MM-dd", Culture)) : "";
+            return oDate;
+        }
         public static TimeSpan ConvertStringTime(string date)
         {
             string iString = date;
