@@ -1,0 +1,181 @@
+using System.ComponentModel.Design;
+using System.Data;
+using System.Globalization;
+using System.Text;
+using N_Health_API.Core;
+using N_Health_API.Helper;
+using N_Health_API.Models;
+using N_Health_API.Models.Master;
+using N_Health_API.Models.Shared;
+using N_Health_API.RepositoriesInterface.Master;
+using NpgsqlTypes;
+
+namespace N_Health_API.Repositories.Master
+{
+    public class JobTypeData : IJobTypeData
+    {
+        private IConfiguration _config;
+
+        public JobTypeData(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> Add(JobtypeDataReasone? data, string? userCode)
+        {
+            bool result = false;
+            List<string> arrSql = new List<string>();
+            DateTime dateTime = new DateTimeUtils().NowDateTime();
+            string formattedDate = dateTime.ToString("yyyy-MM-dd h:mm:ss tt");
+
+            try
+            {
+                if (data != null)
+                {
+                    string typeStr = "JT";
+                    var lastId = "select jobtype_id from jobtype where modified_datetime is not null order by modified_datetime desc limit 1";
+                    data.jobtypeModel.Jobtype_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                    arrSql.Add(lastId);
+
+                    var qInst = "  INSERT INTO \"jobtype\"  " +
+                                "(jobtype_id,jobtype_code,jobtype_name,location_id,team,active,created_by,created_datetime,modified_by,modified_datetime,jobtype_desc)" +
+                                "VALUES(" +
+                                $"@id,@code,@jobtype_name,@location_id,@team,@active,@created_by,@created_datetime,@modified_by,@modified_datetime,@jobtype_desc);\r\n";
+
+
+                    List<DBParameter> parameters = new List<DBParameter>();
+                    parameters.Add(new DBParameter { Name = "id", Value = data.jobtypeModel.Jobtype_Id, Type = NpgsqlDbType.Integer });
+                    parameters.Add(new DBParameter { Name = "code", Value = data.jobtypeModel.Jobtype_Code, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "jobtype_name", Value = data.jobtypeModel.Jobtype_Name, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "jobtype_desc", Value = data.jobtypeModel.Jobtype_Desc, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "location_id", Value = data.jobtypeModel.Location_Id, Type = NpgsqlDbType.Integer });
+                    parameters.Add(new DBParameter { Name = "team", Value = data.jobtypeModel.Team, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "active", Value = data.jobtypeModel.Active, Type = NpgsqlDbType.Boolean });
+                    parameters.Add(new DBParameter { Name = "created_by", Value = userCode, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "created_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
+                    parameters.Add(new DBParameter { Name = "modified_by", Value = userCode, Type = NpgsqlDbType.Varchar });
+                    parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
+
+
+                    StringBuilder qCost_vt = new StringBuilder();
+                    if (data.jobtypeReasons != null)
+                    {
+                        foreach (var item in data.jobtypeReasons)
+                        {
+                            var query = "INSERT INTO jobtype_reason " +
+                            " ( reason_id,created_by,created_datetime, modified_by, modified_datetime ,jobtype_id) " +
+                            " VALUES({0},'{1}','{2}','{3}','{4}',@id);\r\n";
+                            query = string.Format(query, item.Reason_Id, userCode, dateTime.ToString("yyyy-MM-dd h:mm:ss tt"), userCode, formattedDate);
+                            qCost_vt.Append(query);
+                        }
+                    }
+                    arrSql.Add(qInst + qCost_vt);
+                    result = await DBSQLPostgre.SQLPostgresExecutionAddData(arrSql, parameters);
+                    return result;
+                }
+
+
+            }
+            catch
+            {
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<MessageResponseModel> CheckDupData(JobtypeDataReasone? data)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            string? msg = string.Empty;
+            var query = "select jt.*" +
+            "from jobtype jt " +
+            "where jt.jobtype_name = '{0}' "
+            + (data?.jobtypeModel?.Jobtype_Id is null || (data?.jobtypeModel.Jobtype_Id <= 0) ? "" : "and jobtype_id = "
+            + data?.jobtypeModel.Jobtype_Id) + " and jt.location_id = '{0}' ";
+            var query2 = " and jt.location_id = {0} ";
+            query2 = string.Format(query2, data?.jobtypeModel?.Location_Id);
+            query = string.Format(query + query2, data?.jobtypeModel?.Jobtype_Name);
+
+            try
+            {
+                var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
+                if (result != null)
+                {
+                    //data เป็น true ให้ถือว่าเจอข้อมูลซ้ำ
+                    meg_res.Success = true;
+                    meg_res.Message = msg;
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                    meg_res.Data = true;
+                    return meg_res;
+                }
+                else
+                {
+                    //data เป็น false ให้ถือว่าข้อมูลไม่ซ้ำ
+                    meg_res.Success = true;
+                    meg_res.Message = ReturnMessage.SUCCESS;
+                    meg_res.Code = ReturnCode.SUCCESS;
+                    meg_res.Data = false;
+                    return meg_res;
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+        public async Task<(DataTable, long)> SearchJobData(SearchJobtypeModel? data)
+        {
+            string condition = string.Empty;
+            MessageResponseModel meg_res = new MessageResponseModel();
+
+            try
+            {
+                if (data?.Status != null)
+                    condition = string.Format(condition + " jt.active = {0} ", data.Status);
+
+                if (!string.IsNullOrEmpty(data?.Jobtype_Name))
+                    if (!string.IsNullOrEmpty(condition))
+                        condition = condition + " and ";
+                condition = string.Format(condition + " jt.jobtype_name = '{0}'", data?.Jobtype_Name);
+
+                if (!string.IsNullOrEmpty(data?.Short_Location_Name))
+                    if (!string.IsNullOrEmpty(condition))
+                        condition = condition + " and ";
+                condition = string.Format(condition + "lc.location_name = '{0}'", data?.Short_Location_Name);
+
+
+                string query = string.Empty;
+                string qField = "select " +
+                "jt.jobtype_name " +
+                ",jt.active " +
+                ",jt.team " +
+                ",jt.jobtype_id" +
+                ",jt.jobtype_code" +
+                ",jt.location_id" +
+                ",jt.product_Detail_Flag" +
+                ",jt.created_by" +
+                ",jt.modified_by" +
+                ",lc.location_name";
+                string qFromJoin = " from jobtype jt " +
+                " left join location lc on jt.location_id = lc.location_id";
+
+                query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
+                + $" ORDER BY jt.modified_by OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                var totalRows = "select  count(jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+
+                List<string> arrSql = new List<string>();
+                arrSql.Add(query);
+                arrSql.Add(totalRows);
+                var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+    }
+}
