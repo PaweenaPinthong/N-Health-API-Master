@@ -7,7 +7,7 @@ namespace N_Health_API.Models.Master
         public int Reason_Id { get; set; }
         public string Reason_Code { get; set; } = string.Empty;
         public string Reason_Name { get; set; } = string.Empty;
-        public bool Active { get; set; }
+        public bool Active { get; set; } = true;
     }
     public class SearchReasonModel : RequestParameterModel
     {
@@ -29,9 +29,11 @@ namespace N_Health_API.Models.Master
         public DateTime Created_DateTime { get; set; } = DateTime.Now;
         public string? Created_Date_Str { get; set; }
         public string? Created_By { get; set; }
+        public string? Created_Name { get; set; }
         public DateTime Update_DateTime { get; set; } = DateTime.Now;
         public string? Update_Date_Str { get; set; }
         public string? Update_By { get; set; }
+        public string? Update_Name{ get; set; }
     }
 
 }

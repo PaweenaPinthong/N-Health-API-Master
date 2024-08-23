@@ -221,12 +221,14 @@ namespace N_Health_API.Repositories.Master
                               " ,r.active " +
                               " ,r.created_datetime " +
                               " ,TO_CHAR(r.created_datetime::timestamp, 'DD/MM/YYYY') AS Created_Date_Str " +
-                              " ,CONCAT(uc.\"name\",' ',uc.lastname) as Created_By " +
+                              " ,r.created_by as Created_By " +
+                              " ,CONCAT(uc.\"name\",' ',uc.lastname) as Created_Name " +
                               " ,r.modified_datetime " +
                               " ,TO_CHAR(r.modified_datetime ::timestamp, 'DD/MM/YYYY') AS Update_Date_Str " +
-                              " ,CONCAT(uc.\"name\",' ',uc.lastname) as Update_By ";
+                              " ,r.modified_by as Update_By " +
+                              " ,CONCAT(uc.\"name\",' ',uc.lastname) as Update_Name ";
                 
-                string qJoin = " from reason r join userinfo uc on r.created_by = uc.created_by ";
+                string qJoin = " from reason r left join userinfo uc on r.created_by = uc.user_code ";
 
                 query = qField + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}") +
                         $" ORDER BY r.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
