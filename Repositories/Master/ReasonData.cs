@@ -23,7 +23,7 @@ namespace N_Health_API.Repositories.Master
                 if(data != null)
                 {
                     string typeStr = "RE";
-                    var lastId = "select reason_id from reason where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select reason_id from reason where created_datetime is not null order by created_datetime desc limit 1";
                     data.Reason_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
@@ -202,14 +202,14 @@ namespace N_Health_API.Repositories.Master
                 }
                 if(data?.Datetime != null)
                 {
-                   var day = Util.ConvertDateTHToString(data?.Datetime);
+                   var date = Util.ConvertDateTHToString(data?.Datetime);
                     if (condition.Length > 0)
                     {
-                        condition = condition + string.Format(" and DATE(r.created_datetime) = '{0}' ", day);
+                        condition = condition + string.Format(" and DATE(r.created_datetime) = '{0}' ", date);
                     }
                     else
                     {
-                        condition = condition + string.Format(" DATE(r.created_datetime) = '{0}' ", day);
+                        condition = condition + string.Format(" DATE(r.created_datetime) = '{0}' ", date);
                     }
 
                 }
