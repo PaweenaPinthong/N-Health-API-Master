@@ -125,8 +125,8 @@ namespace N_Health_API.Controllers.Master
         }
 
         [SwaggerOperation(Tags = new[] { "Priority Job Type" }, Summary = "ดึงข้อมูลราย Record", Description = "ดึงข้อมูลราย Record")]
-        [HttpGet("GetById")]
-        public async Task<MessageResponseModel> GetById([FromQuery] int id)
+        [HttpPost("GetById")]
+        public async Task<MessageResponseModel> GetById([FromBody] PriorityJobtypeRequest id)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -143,7 +143,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iPriorityJobType.GetByIdService(id);
+                var result = await _iPriorityJobType.GetByIdService(id.Priority_Jobtype_Id);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
