@@ -124,8 +124,8 @@ namespace N_Health_API.Controllers.Master
         }
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Get ข้อมูล by ID", Description = "Get ข้อมูล by ID")]
-        [HttpGet("GetById")]
-        public async Task<MessageResponseModel> GetById([FromQuery] ReasonRequest request)
+        [HttpPost("GetById")]
+        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
