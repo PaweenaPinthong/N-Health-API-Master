@@ -7,8 +7,9 @@ namespace N_Health_API.RepositoriesInterface.Master
     public interface IJobTypeData
     {
         Task<bool> Add(JobtypeDataReasone? data, string? userCode);
+        Task<bool> Edit(JobtypeDataReasone? data, string? userCode);
         Task<MessageResponseModel> CheckDupData(JobtypeDataReasone? data);
-
         Task<(DataTable, long)> SearchJobData(SearchJobtypeModel? data);
+
     }
 }

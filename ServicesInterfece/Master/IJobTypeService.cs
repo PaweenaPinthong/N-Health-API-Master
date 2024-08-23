@@ -7,7 +7,7 @@ namespace N_Health_API.ServicesInterfece.Master
     public interface IJobTypeService
     {
         Task<MessageResponseModel> AddService(JobtypeDataReasone data, string? userCode);
-
+        Task<MessageResponseModel> EditService(JobtypeDataReasone data, string? userCode);
         Task<MessageResponseModel> SearchService(SearchJobtypeModel data);
     }
 }

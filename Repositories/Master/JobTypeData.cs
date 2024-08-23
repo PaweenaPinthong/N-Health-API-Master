@@ -65,7 +65,7 @@ namespace N_Health_API.Repositories.Master
                             var query = "INSERT INTO jobtype_reason " +
                             " ( reason_id,created_by,created_datetime, modified_by, modified_datetime ,jobtype_id) " +
                             " VALUES({0},'{1}','{2}','{3}','{4}',@id);\r\n";
-                            query = string.Format(query, item.Reason_Id, userCode, dateTime.ToString("yyyy-MM-dd h:mm:ss tt"), userCode, formattedDate);
+                            query = string.Format(query, item.Reason_Id, userCode, formattedDate, userCode, formattedDate);
                             qCost_vt.Append(query);
                         }
                     }
@@ -170,6 +170,57 @@ namespace N_Health_API.Repositories.Master
                 arrSql.Add(query);
                 arrSql.Add(totalRows);
                 var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> Edit(JobtypeDataReasone data, string? usercode)
+        {
+            bool result = false;
+            DateTime dateTime = new DateTimeUtils().NowDateTime();
+            string formattedDate = dateTime.ToString("yyyy-MM-dd h:mm:ss tt");
+
+            try
+            {
+                var qJobtype = "  UPDATE \"jobtype\" " +
+                "SET jobtype_name = @jobtype_name" +
+                ", modified_by = @modified_by" +
+                ", jobtype_desc = @jobtype_desc" +
+                ", location_id = @location_id" +
+                ", team = @team" +
+                ", active = @active" +
+                ", modified_datetime = @modified_datetime" +
+                " where jobtype_id = @jobtype_id;\r\n";
+
+                List<DBParameter> parameters = new List<DBParameter>();
+                parameters.Add(new DBParameter { Name = "jobtype_id", Value = data.jobtypeModel.Jobtype_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "jobtype_name", Value = data.jobtypeModel.Jobtype_Name, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "jobtype_desc", Value = data.jobtypeModel.Jobtype_Desc, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "location_id", Value = data.jobtypeModel.Location_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "team", Value = data.jobtypeModel.Team, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "active", Value = data.jobtypeModel.Active, Type = NpgsqlDbType.Boolean });
+                parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
+                parameters.Add(new DBParameter { Name = "modified_by", Value = usercode, Type = NpgsqlDbType.Varchar });
+
+                StringBuilder qJobtype_vt = new StringBuilder();
+                var queryD = "DELETE from jobtype_reason " +
+                "WHERE jobtype_id = @jobtype_id;\r\n";
+                queryD = string.Format(queryD, data.jobtypeModel.Jobtype_Id);
+
+                foreach (var item in data.jobtypeReasons)
+                {
+                    var query = "INSERT INTO jobtype_reason " +
+                            " ( reason_id,created_by,created_datetime, modified_by, modified_datetime ,jobtype_id) " +
+                            " VALUES({0},'{1}','{2}','{3}','{4}',@jobtype_id);\r\n";
+                    query = string.Format(query, item.Reason_Id, usercode, formattedDate, usercode, formattedDate);
+                    qJobtype_vt.Append(query);
+
+                }
+                result = DBSQLPostgre.SQLPostgresExecutionCommand(qJobtype + queryD + qJobtype_vt, parameters);
                 return result;
             }
             catch

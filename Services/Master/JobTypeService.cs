@@ -55,6 +55,42 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
+        public async Task<MessageResponseModel> EditService(JobtypeDataReasone data, string? userCode)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            string methodName = Util.GetMethodName();
+            meg_res.Message = ReturnMessage.SYSTEM_ERROR;
+            meg_res.Code = ReturnCode.SYSTEM_ERROR;
+            meg_res.Success = false;
+            try
+            {
+                var checkDup = await _repo.CheckDupData(data);
+                if (!Convert.ToBoolean(checkDup?.Data))
+                {
+                    var result = await _repo.Edit(data, userCode);
+                    if (result != false)
+                    {
+                        meg_res.Success = true;
+                        meg_res.Message = ReturnMessage.SUCCESS;
+                        meg_res.Code = ReturnCode.SUCCESS;
+                        meg_res.Data = result;
+                    }
+                }
+                else
+                {
+                    meg_res.Success = false;
+                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA, checkDup.Message);
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                meg_res.Message = methodName + " - " + ex.Message + " - " + ex.StackTrace;
+            }
+            return meg_res;
+        }
+
         public async Task<MessageResponseModel> SearchService(SearchJobtypeModel data)
         {
             string methodName = Util.GetMethodName();

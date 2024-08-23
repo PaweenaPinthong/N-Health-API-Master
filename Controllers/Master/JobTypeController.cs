@@ -54,6 +54,37 @@ namespace N_Health_API.Controllers.Master
             return msgResult;
         }
 
+        [SwaggerOperation(Tags = new[] { "JobType" }, Summary = "แก้ไขข้อมูล JobType", Description = "แก้ไขข้อมูล JobType")]
+        [HttpPost("Edit")]
+        public async Task<MessageResponseModel> Edit([FromBody] JobtypeDataReasone data)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+            string? user_code = Request.Headers["UserCode"];
+
+
+            try
+            {
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+                var result = await _iJobTypeService.EditService(data, user_code);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+            return msgResult;
+        }
+
         [SwaggerOperation(Tags = new[] { "JobType" }, Summary = "ค้นหาข้อมูล", Description = "ค้นหาข้อมูลหน้าหลัก")]
         [HttpPost("Search")]
         public async Task<MessageResponseModel> SearchJobData([FromBody] SearchJobtypeModel data)
