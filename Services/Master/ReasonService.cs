@@ -104,7 +104,7 @@ namespace N_Health_API.Services.Master
                 else
                 {
                     meg_res.Success = false;
-                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA);
+                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA,checkDup.Message);
                     meg_res.Code = ReturnCode.DUPLICATE_DATA;
                 }
             }
