@@ -109,7 +109,7 @@ namespace N_Health_API.Repositories.Master
                 var query = "select pj.*" +
                             " from priority_jobtype pj " +
                             " where pj.priority_id = {0} "+
-                            " and pj.location_id = {1}" +"" +
+                            " and pj.location_id != {1}" +"" +
                             " and LOWER(pj.team) = LOWER('{2}')";
 
                 query = string.Format(query, data?.PriorityJobtype.Priority_Id,data?.PriorityJobtype.Location_Id,data?.PriorityJobtype.Team);

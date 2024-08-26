@@ -87,7 +87,7 @@ namespace N_Health_API.Repositories.Master
                 string? msg = string.Empty;
                 var query = "select p.*" +
                             " from priority p " +
-                            " where p.priority_name = '{0}'" + (priorityModel?.Priority_Id is null || (priorityModel?.Priority_Id <= 0) ? "" : " and p.priority_id = " + priorityModel?.Priority_Id);
+                            " where p.priority_name = '{0}'" + (priorityModel?.Priority_Id is null || (priorityModel?.Priority_Id <= 0) ? "" : " and p.priority_id != " + priorityModel?.Priority_Id);
 
                 query = string.Format(query, priorityModel?.Priority_Name);
 
