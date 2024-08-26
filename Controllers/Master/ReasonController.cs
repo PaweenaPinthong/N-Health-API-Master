@@ -9,24 +9,24 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace N_Health_API.Controllers.Master
 {
-    [Authorize]
-    [Route("Priority")]
-    [SwaggerTag("ระบบจัดการข้อมูล Priority")]
-    public class PriorityController : ControllerBase
-    {
 
-        private readonly IPriorityService _iPriority;
+    [Authorize]
+    [Route("Reason")]
+    [SwaggerTag("ระบบจัดการข้อมูล Reason")]
+    public class ReasonController : ControllerBase
+    {
+        private readonly IReasonService _iReason;
         private readonly IAccessTokenService _auth;
 
-        public PriorityController(IPriorityService iPriority, IAccessTokenService _auth)
+        public ReasonController(IReasonService ireason , IAccessTokenService auth)
         {
-            this._auth = _auth;
-            this._iPriority = iPriority;
+            this._iReason = ireason;
+            this._auth = auth;
         }
 
-        [SwaggerOperation(Tags = new[] { "Priority" }, Summary = "เพิ่มข้อมูล Priority", Description = "เพิ่มข้อมูล Priority")]
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "เพิ่มข้อมูล Reason",Description = "เพิ่มข้อมูล Reason")]
         [HttpPost("Add")]
-        public async Task<MessageResponseModel> Add([FromBody] PriorityModel model)
+        public async Task<MessageResponseModel> Add([FromBody] ReasonModel model)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -35,7 +35,7 @@ namespace N_Health_API.Controllers.Master
 
             try
             {
-                //----------------validation header--------------------------
+                // header 
                 string? user_code = Request.Headers["UserCode"];
                 var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
                 if (!checkAuth_RES.Success)
@@ -43,7 +43,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iPriority.AddService(model, user_code);
+                var result = await _iReason.AddService(model, user_code);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -57,42 +57,9 @@ namespace N_Health_API.Controllers.Master
             return msgResult;
         }
 
-        [SwaggerOperation(Tags = new[] { "Priority" }, Summary = "แก้ไขข้อมูล Priority", Description = "แก้ไขข้อมูล Priority")]
-        [HttpPost("Edit")]
-        public async Task<MessageResponseModel> Edit([FromBody] PriorityModel model)
-        {
-            MessageResponseModel msgResult = new MessageResponseModel();
-            msgResult.Code = ReturnCode.SYSTEM_ERROR;
-            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
-            msgResult.Success = false;
-
-            try
-            {
-                //----------------validation header--------------------------
-                string? user_code = Request.Headers["UserCode"];
-                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
-                if (!checkAuth_RES.Success)
-                {
-                    return checkAuth_RES;
-                }
-
-                var result = await _iPriority.EditService(model, user_code);
-                msgResult.Code = result.Code;
-                msgResult.Message = result.Message;
-                msgResult.Success = result.Success;
-                msgResult.Data = result.Data;
-            }
-            catch (Exception ex)
-            {
-                msgResult.Message = ex.Message;
-            }
-
-            return msgResult;
-        }
-
-        [SwaggerOperation(Tags = new[] { "Priority" }, Summary = "เปลี่ยนสถานะข้อมูล", Description = "เปลี่ยนสถานะข้อมูล Active(true) กับ Inactive(false)")]
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "เปลี่ยนสถานะข้อมูล", Description = "เปลี่ยนสถานะข้อมูล")]
         [HttpPost("ChangeActive")]
-        public async Task<MessageResponseModel> ChangeActive([FromBody] PriorityRequest request)
+        public async Task<MessageResponseModel> ChangeActive([FromBody] ReasonRequest request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -101,8 +68,7 @@ namespace N_Health_API.Controllers.Master
 
             try
             {
-
-                //----------------validation header--------------------------
+                // header
                 string? user_code = Request.Headers["UserCode"];
                 var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
                 if (!checkAuth_RES.Success)
@@ -110,7 +76,40 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iPriority.ChangeActiveService(request.Priority_Id, request.Active, user_code);
+                var result = await _iReason.ChangeActiveService(request.Reason_Id,request.Active,user_code);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+
+            }catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+            return msgResult;
+
+        }
+
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "แก้ไขข้อมูล Reason", Description = "แก้ไขข้อมูล Reason")]
+        [HttpPost("Edit")]
+        public async Task<MessageResponseModel> Edit([FromBody] ReasonModel model)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iReason.EditService(model, user_code);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -124,10 +123,9 @@ namespace N_Health_API.Controllers.Master
             return msgResult;
         }
 
-
-        [SwaggerOperation(Tags = new[] { "Priority" }, Summary = "ดึงข้อมูลราย Record", Description = "ดึงข้อมูลราย Record")]
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Get ข้อมูล by ID", Description = "Get ข้อมูล by ID")]
         [HttpPost("GetById")]
-        public async Task<MessageResponseModel> GetById([FromBody] PriorityRequest id)
+        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -136,7 +134,7 @@ namespace N_Health_API.Controllers.Master
 
             try
             {
-                //----------------validation header--------------------------
+                // header 
                 string? user_code = Request.Headers["UserCode"];
                 var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
                 if (!checkAuth_RES.Success)
@@ -144,7 +142,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iPriority.GetByIdService(id.Priority_Id);
+                var result = await _iReason.GetByIdService(request.Reason_Id);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -158,9 +156,9 @@ namespace N_Health_API.Controllers.Master
             return msgResult;
         }
 
-        [SwaggerOperation(Tags = new[] { "Priority" }, Summary = "ค้นหาข้อมูล", Description = "ค้นหาข้อมูลหน้าหลัก")]
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Search Reason", Description = "Search Reason")]
         [HttpPost("Search")]
-        public async Task<MessageResponseModel> Search([FromBody] SearchPriorityModel data)
+        public async Task<MessageResponseModel> Search([FromBody] SearchReasonModel data)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -169,7 +167,7 @@ namespace N_Health_API.Controllers.Master
 
             try
             {
-                //----------------validation header--------------------------
+                // header 
                 string? user_code = Request.Headers["UserCode"];
                 var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
                 if (!checkAuth_RES.Success)
@@ -177,7 +175,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iPriority.SearchService(data);
+                var result = await _iReason.SearchService(data);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;

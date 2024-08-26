@@ -28,15 +28,25 @@ namespace N_Health_API.Services.Master
 
             try
             {
-                var result = await _repo.Add(data, userCode);
-                if (result != false)
+                var checkDup = await _repo.CheckDupData(data);
+                if (Convert.ToBoolean(checkDup?.Data) == false)
                 {
-                    meg_res.Success = true;
-                    meg_res.Message = ReturnMessage.SUCCESS;
-                    meg_res.Code = ReturnCode.SUCCESS;
-                    meg_res.Data = result;
+                    var result = await _repo.Add(data, userCode);
+                    if (result != false)
+                    {
+                        meg_res.Success = true;
+                        meg_res.Message = ReturnMessage.SUCCESS;
+                        meg_res.Code = ReturnCode.SUCCESS;
+                        meg_res.Data = result;
+                    }
+                    return meg_res;
                 }
-                return meg_res;
+                else {
+                    meg_res.Success = false;
+                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA, checkDup.Message);
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                    return meg_res;
+                }
             }
             catch (Exception ex)
             {
@@ -80,15 +90,25 @@ namespace N_Health_API.Services.Master
 
             try
             {
-                var result = await _repo.Edit(data, userCode);
-                if (result != false)
+                var checkDup = await _repo.CheckDupData(data);
+                if (Convert.ToBoolean(checkDup?.Data) == false)
                 {
-                    meg_res.Success = true;
-                    meg_res.Message = ReturnMessage.SUCCESS;
-                    meg_res.Code = ReturnCode.SUCCESS;
-                    meg_res.Data = result;
+                    var result = await _repo.Edit(data, userCode);
+                    if (result != false)
+                    {
+                        meg_res.Success = true;
+                        meg_res.Message = ReturnMessage.SUCCESS;
+                        meg_res.Code = ReturnCode.SUCCESS;
+                        meg_res.Data = result;
+                    }
+                    return meg_res;
                 }
-                return meg_res;
+                else {
+                    meg_res.Success = false;
+                    meg_res.Message = string.Format(ReturnMessage.DUPLICATE_DATA, checkDup.Message);
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                    return meg_res;
+                }
             }
             catch (Exception ex)
             {

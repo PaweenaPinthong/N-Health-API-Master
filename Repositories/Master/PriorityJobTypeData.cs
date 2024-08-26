@@ -2,6 +2,7 @@
 using N_Health_API.Helper;
 using N_Health_API.Models;
 using N_Health_API.Models.Master;
+using N_Health_API.Models.Shared;
 using N_Health_API.RepositoriesInterface.Master;
 using NpgsqlTypes;
 using System.Collections.Generic;
@@ -23,19 +24,20 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "PJ";
-                    var lastId = "select priority_jobtype_id from priority_jobtype where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select priority_jobtype_id from priority_jobtype where created_datetime is not null order by created_datetime desc limit 1";
                     data.PriorityJobtype.Priority_Jobtype_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
                 }
                 // query add Priority Job Type
                 var qInst = "INSERT INTO priority_jobtype " +
-                "(priority_jobtype_id,priority_jobtype_code, priority_id, team, service_time, waiting_time, active, created_by, created_datetime, modified_by, modified_datetime) " +
-                "VALUES(@id, @code, @priority_id, @team, @service_time, @waiting_time, @active, @created_by, @created_datetime, @modified_by, @modified_datetime);";
+                "(priority_jobtype_id,priority_jobtype_code, priority_id, location_id,team, service_time, waiting_time, active, created_by, created_datetime, modified_by, modified_datetime) " +
+                "VALUES(@id, @code, @priority_id, @location_id, @team, @service_time, @waiting_time, @active, @created_by, @created_datetime, @modified_by, @modified_datetime);";
 
                 List<DBParameter> parameters = new List<DBParameter>();
                 parameters.Add(new DBParameter { Name = "id", Value = data?.PriorityJobtype.Priority_Jobtype_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "code", Value = data?.PriorityJobtype.Priority_Jobtype_Code, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "priority_id", Value = data?.PriorityJobtype.Priority_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "location_id", Value = data?.PriorityJobtype.Location_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "team", Value = data?.PriorityJobtype.Team, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "service_time", Value = data?.PriorityJobtype.Service_Time, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "waiting_time", Value = data?.PriorityJobtype.Waiting_Time, Type = NpgsqlDbType.Integer });
@@ -54,7 +56,7 @@ namespace N_Health_API.Repositories.Master
                         var query = "INSERT INTO priority_jobtype_jobtype " +
                         " (priority_jobtype_id, jobtype_id,created_by,created_datetime, modified_by, modified_datetime) " +
                         " VALUES(@id,'{0}','{1}','{2}','{3}','{4}');\r\n";
-                        query = string.Format(query, item.Jobtype_Id, userCode, dateTime, userCode, dateTime);
+                        query = string.Format(query, item.Jobtype_Id, userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"), userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"));
                         qJobType.Append(query);
                     }
                 }
@@ -98,6 +100,45 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
+        public async Task<MessageResponseModel> CheckDupData(PriorityJobtypeDataModel data)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            try
+            {
+                string? msg = string.Empty;
+                var query = "select pj.*" +
+                            " from priority_jobtype pj " +
+                            " where pj.priority_id = {0} "+
+                            " and pj.location_id = {1}" +"" +
+                            " and LOWER(pj.team) = LOWER('{2}')";
+
+                query = string.Format(query, data?.PriorityJobtype.Priority_Id,data?.PriorityJobtype.Location_Id,data?.PriorityJobtype.Team);
+
+                var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
+                if (result != null && result?.AsEnumerable().Count() > 0)
+                {
+                    msg = "(ข้อมูล Priority Name, Location Name, Team)";
+                    meg_res.Success = true;
+                    meg_res.Message = msg;
+                    meg_res.Code = ReturnCode.DUPLICATE_DATA;
+                    meg_res.Data = true;//data เป็น true ให้ถือว่าเจอข้อมูลซ้ำ
+                    return meg_res;
+                }
+                else
+                {
+                    meg_res.Success = true;
+                    meg_res.Message = ReturnMessage.SUCCESS;
+                    meg_res.Code = ReturnCode.SUCCESS;
+                    meg_res.Data = false;//data เป็น false ให้ถือว่าข้อมูลไม่ซ้ำ
+                    return meg_res;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public async Task<bool> Edit(PriorityJobtypeDataModel data, string? userCode)
         {
             bool result = false;
@@ -108,6 +149,7 @@ namespace N_Health_API.Repositories.Master
                 var qUpdate = "UPDATE priority_jobtype SET" +
                 "  team = @team " +
                 ", priority_id = @priority_id " +
+                ", location_id = @location_id " +
                 ", service_time = @service_time " +
                 ", waiting_time = @waiting_time " +
                 ", active = @active " + 
@@ -118,6 +160,7 @@ namespace N_Health_API.Repositories.Master
                 List<DBParameter> parameters = new List<DBParameter>();
                 parameters.Add(new DBParameter { Name = "priority_jobtype_id", Value = data?.PriorityJobtype.Priority_Jobtype_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "priority_id", Value = data?.PriorityJobtype.Priority_Id, Type = NpgsqlDbType.Integer });
+                parameters.Add(new DBParameter { Name = "location_id", Value = data?.PriorityJobtype.Location_Id, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "team", Value = data?.PriorityJobtype.Team, Type = NpgsqlDbType.Varchar });
                 parameters.Add(new DBParameter { Name = "service_time", Value = data?.PriorityJobtype.Service_Time, Type = NpgsqlDbType.Integer });
                 parameters.Add(new DBParameter { Name = "waiting_time", Value = data?.PriorityJobtype.Waiting_Time, Type = NpgsqlDbType.Integer });
@@ -135,7 +178,7 @@ namespace N_Health_API.Repositories.Master
                         var query = "INSERT INTO priority_jobtype_jobtype " +
                        " (priority_jobtype_id, jobtype_id,created_by,created_datetime, modified_by, modified_datetime) " +
                        " VALUES('{0}','{1}','{2}','{3}','{4}','{5}');\r\n";
-                        query = string.Format(query,data?.PriorityJobtype.Priority_Jobtype_Id , item.Jobtype_Id, userCode, dateTime, userCode, dateTime);
+                        query = string.Format(query,data?.PriorityJobtype.Priority_Jobtype_Id , item.Jobtype_Id, userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"), userCode, dateTime.ToString("yyyy-MM-dd hh:mm:ss tt"));
 
                         qJobType.Append(query);
                     }

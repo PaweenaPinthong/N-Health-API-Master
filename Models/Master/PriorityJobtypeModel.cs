@@ -7,6 +7,7 @@ namespace N_Health_API.Models.Master
         public int Priority_Jobtype_Id { get; set; }
         public string Priority_Jobtype_Code { get; set; } = string.Empty;
         public int Priority_Id { get; set; }
+        public int Location_Id { get; set; }
         public string Team { get; set; } = string.Empty;
         public int Service_Time { get; set; }
         public int Waiting_Time { get; set; }
@@ -41,6 +42,7 @@ namespace N_Health_API.Models.Master
         public int Priority_Jobtype_Id { get; set; }
         public string Priority_Jobtype_Code { get; set; } = string.Empty;
         public int Priority_Id { get; set; }
+        public int Location_Id { get; set; }
         public string Priority_Name { get; set; } = string.Empty;
         public string Team { get; set; } = string.Empty;
         public int Service_Time { get; set; }
@@ -70,6 +72,7 @@ namespace N_Health_API.Models.Master
         public int Priority_Jobtype_Id { get; set; }
         public string Priority_Jobtype_Code { get; set; } = string.Empty;
         public int Priority_Id { get; set; }
+        public int Location_Id { get; set; }
         public string Priority_Name { get; set; } = string.Empty;
         public string Jobtype_Name { get; set; } = string.Empty;
         public string Team { get; set; } = string.Empty;
