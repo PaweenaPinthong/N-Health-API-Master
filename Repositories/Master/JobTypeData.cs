@@ -33,14 +33,14 @@ namespace N_Health_API.Repositories.Master
                 if (data != null)
                 {
                     string typeStr = "JT";
-                    var lastId = "select jobtype_id from jobtype where modified_datetime is not null order by modified_datetime desc limit 1";
+                    var lastId = "select jobtype_id from jobtype where created_datetime is not null order by created_datetime desc limit 1";
                     data.jobtypeModel.Jobtype_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
                     arrSql.Add(lastId);
 
                     var qInst = "  INSERT INTO \"jobtype\"  " +
-                                "(jobtype_id,jobtype_code,jobtype_name,location_id,team,active,created_by,created_datetime,modified_by,modified_datetime,jobtype_desc)" +
+                                "(jobtype_id,jobtype_code,jobtype_name,location_id,team,active,created_by,created_datetime,modified_by,modified_datetime,jobtype_desc,product_detail_flag)" +
                                 "VALUES(" +
-                                $"@id,@code,@jobtype_name,@location_id,@team,@active,@created_by,@created_datetime,@modified_by,@modified_datetime,@jobtype_desc);\r\n";
+                                $"@id,@code,@jobtype_name,@location_id,@team,@active,@created_by,@created_datetime,@modified_by,@modified_datetime,@jobtype_desc,@product_detail_flag);\r\n";
 
 
                     List<DBParameter> parameters = new List<DBParameter>();
@@ -55,6 +55,7 @@ namespace N_Health_API.Repositories.Master
                     parameters.Add(new DBParameter { Name = "created_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
                     parameters.Add(new DBParameter { Name = "modified_by", Value = userCode, Type = NpgsqlDbType.Varchar });
                     parameters.Add(new DBParameter { Name = "modified_datetime", Value = dateTime, Type = NpgsqlDbType.Timestamp });
+                    parameters.Add(new DBParameter { Name = "product_detail_flag", Value = false, Type = NpgsqlDbType.Boolean });
 
 
                     StringBuilder qCost_vt = new StringBuilder();
