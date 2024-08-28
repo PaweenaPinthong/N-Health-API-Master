@@ -91,7 +91,7 @@ namespace N_Health_API.Repositories.Master
             var query = "select jt.*" +
             "from jobtype jt " +
             "where jt.jobtype_name = '{0}' "
-            + (data?.jobtypeModel?.Jobtype_Id is null || (data?.jobtypeModel.Jobtype_Id <= 0) ? "" : "and jobtype_id = "
+            + (data?.jobtypeModel?.Jobtype_Id is null || (data?.jobtypeModel.Jobtype_Id <= 0) ? "" : "and jobtype_id != "
             + data?.jobtypeModel.Jobtype_Id) + " and jt.location_id = '{0}' ";
             var query2 = " and jt.location_id = {0} ";
             query2 = string.Format(query2, data?.jobtypeModel?.Location_Id);
