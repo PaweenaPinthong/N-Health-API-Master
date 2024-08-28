@@ -71,7 +71,7 @@ namespace N_Health_API.Repositories.Master
                             ", modified_datetime = @modified_datetime  " +
                             " where reason_id = @reason_id";
 
-                query = String.Format(query, id);
+                query = string.Format(query, id);
 
                 List<DBParameter> parameters = new List<DBParameter>();
                 parameters.Add(new DBParameter { Name = "active" , Value = isActive , Type = NpgsqlDbType.Boolean });
@@ -96,7 +96,7 @@ namespace N_Health_API.Repositories.Master
                 String? msg = string.Empty;
                 var query = "select r.*" +
                             " from reason r " +
-                            " where r.reason_name = '{0}'" + (data?.Reason_Id is null || (data?.Reason_Id <= 0) ? "" : " and r.reason_id = " + data?.Reason_Id);
+                            " where r.reason_name = '{0}'" + (data?.Reason_Id is null || (data?.Reason_Id <= 0) ? "" : " and r.reason_id != " + data?.Reason_Id);
 
                 query = string.Format(query, data?.Reason_Name);
 
@@ -188,19 +188,13 @@ namespace N_Health_API.Repositories.Master
                 {
                     condition = string.Format(condition + " r.active = {0}", data.Active);
                 }
-                if(data?.Reason_Name != null)
+
+                if (!string.IsNullOrEmpty(data?.Reason_Name))
                 {
-                    if(condition.Length > 0 )
-                    {
-                      condition = condition + string.Format(" and r.reason_name like '%{0}%'", data?.Reason_Name);
-                    }
-                    else
-                    {
-                      condition = condition + string.Format(" r.reason_name like '%{0}%'", data?.Reason_Name);
-                    }
-                   
+                    condition += (condition.Length > 0 ? " and " : "") + $"r.reason_name like '%{data.Reason_Name}%'";
                 }
-                if(data?.Datetime != null)
+
+                if (data?.Datetime != null)
                 {
                    var date = Util.ConvertDateTHToString(data?.Datetime);
                     if (condition.Length > 0)
@@ -226,9 +220,10 @@ namespace N_Health_API.Repositories.Master
                               " ,r.modified_datetime " +
                               " ,TO_CHAR(r.modified_datetime ::timestamp, 'DD/MM/YYYY') AS Update_Date_Str " +
                               " ,r.modified_by as Update_By " +
-                              " ,CONCAT(uc.\"name\",' ',uc.lastname) as Update_Name ";
+                              " ,CONCAT(um.\"name\",' ',um.lastname) as Update_Name ";
                 
-                string qJoin = " from reason r left join userinfo uc on r.created_by = uc.user_code ";
+                string qJoin = " from reason r left join userinfo uc on r.created_by = uc.user_code " +
+                               " left join userinfo um on r.modified_by = um.user_code ";
 
                 query = qField + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}") +
                         $" ORDER BY r.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";

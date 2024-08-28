@@ -76,6 +76,7 @@ builder.Services.AddTransient<IPriorityService, PriorityService>();
 builder.Services.AddTransient<IPriorityJobTypeService, PriorityJobTypeService>();
 builder.Services.AddTransient<IJobTypeService , JobTypeService>();
 builder.Services.AddTransient<IReasonService, ReasonService>();
+builder.Services.AddTransient<IProductTypeService, ProductTypeService>();
 #endregion
 #region data 
 builder.Services.AddTransient<IPermissionData, PermissionData>();
@@ -90,6 +91,7 @@ builder.Services.AddTransient<IPriorityData, PriorityData>();
 builder.Services.AddTransient<IPriorityJobTypeData, PriorityJobTypeData>();
 builder.Services.AddTransient<IJobTypeData , JobTypeData>();
 builder.Services.AddTransient<IReasonData, ReasonData>();
+builder.Services.AddTransient<IProductTypeData, ProductTypeData>();
 #endregion
 
 var app = builder.Build();
