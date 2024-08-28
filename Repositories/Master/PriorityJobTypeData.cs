@@ -202,6 +202,7 @@ namespace N_Health_API.Repositories.Master
                         " PJT.priority_jobtype_code ," +
                         " P.priority_id ," +
                         " P.priority_name ," +
+                        " PJT.location_id ," +
                         " PJT.team ," +
                         " PJT.service_time ," +
                         " PJT.waiting_time ," +
@@ -251,6 +252,7 @@ namespace N_Health_API.Repositories.Master
             try
             {
                 StringBuilder condition = new StringBuilder();
+                StringBuilder conditionJobType = new StringBuilder();
 
                 // check status ถ้า null คือโชว์ทั้งหมด ไม่ใส่ลงไปในเงื่อนไข
                 if (dataSearch?.Active != null)
@@ -275,19 +277,21 @@ namespace N_Health_API.Repositories.Master
                 // เงื่อนไข jobtype name by id
                 if (dataSearch?.Jobtype_Id != null)
                 {
-                    if (condition.Length > 0) condition.Append(" and ");
-                    condition.AppendFormat("pjj.jobtype_id = {0}", dataSearch.Jobtype_Id);
+                    if (conditionJobType.Length > 0) conditionJobType.Append(" and ");
+                    conditionJobType.AppendFormat("pjj.jobtype_id = {0}", dataSearch.Jobtype_Id);
                 }
                 string qField = "WITH jobtype_agg AS (" +
                     " select pjj.priority_jobtype_id, STRING_AGG(jt.jobtype_name, ', ') AS jobtype_name  " +
                     " from jobtype jt  " +
                     " inner join priority_jobtype_jobtype pjj ON jt.jobtype_id = pjj.jobtype_id  " +
+                    (conditionJobType.Length == 0 ? "" : $" where {conditionJobType}") +
                     " group by pjj.priority_jobtype_id\n" +
                     ")\n"+
                     "select " +
                     " pj.priority_jobtype_id , " +
                     " pj.priority_jobtype_code , " +
                     " pj.priority_id , " +
+                    " pj.location_id , " +
                     " p.priority_name , " +
                     " pj.service_time , " +
                     " pj.waiting_time , " +
@@ -302,10 +306,10 @@ namespace N_Health_API.Repositories.Master
                     " left join userinfo uc on pj.created_by = uc.user_code" +
                     " left join userinfo um on pj.modified_by = um.user_code" +
                     " left join priority p on p.priority_id = pj.priority_id" +
-                    " left join jobtype_agg ja ON pj.priority_jobtype_id = ja.priority_jobtype_id";
+                    " inner join jobtype_agg ja ON pj.priority_jobtype_id = ja.priority_jobtype_id";
                 string query = qField + (condition.Length == 0 ? "" : $" where {condition}") +
                     $" ORDER BY modified_datetime OFFSET (({dataSearch?.PageNumber}-1)*{dataSearch?.PageSize}) ROWS FETCH NEXT {dataSearch?.PageSize} ROWS ONLY;\r\n";
-                var totalRows = "select count(pj.priority_jobtype_id) as count_rows from priority p" +
+                var totalRows = "select count(pj.priority_jobtype_id) as count_rows from priority_jobtype pj" +
                     (condition.Length == 0 ? "" : $" where {condition}");
 
                 List<string> arrSql = new List<string>();

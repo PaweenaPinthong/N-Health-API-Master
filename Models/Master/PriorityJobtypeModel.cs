@@ -54,7 +54,7 @@ namespace N_Health_API.Models.Master
     {
         public int Priority_Jobtype_Id { get; set; }
         public int Jobtype_Id { get; set; }
-        public string Jobtype_name { get; set; } = string.Empty;
+        public string Jobtype_Name { get; set; } = string.Empty;
     }
 
     public class SearchPriorityJobtypeModel : RequestParameterModel
