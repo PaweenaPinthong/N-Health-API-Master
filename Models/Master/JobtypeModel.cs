@@ -32,4 +32,10 @@ namespace N_Health_API.Models.Master
         public string? Jobtype_Name { get; set; }
         public string? Short_Location_Name { get; set; }
     }
+
+     public class JobtypeRequest
+    {
+        public int Jobtype_Id { get; set; }
+        public bool Active { get; set; }
+    }
 }

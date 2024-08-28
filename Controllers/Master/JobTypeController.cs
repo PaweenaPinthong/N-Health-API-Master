@@ -9,7 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace N_Health_API.Controllers.Master
 {
-    [Authorize]
+    // [Authorize]
     [Route("JobType")]
     public class JobTypeController : Controller
     {
@@ -19,7 +19,7 @@ namespace N_Health_API.Controllers.Master
         public JobTypeController(IJobTypeService iJobTypeService, IAccessTokenService auth)
         {
             this._iJobTypeService = iJobTypeService;
-            this._auth = auth;
+            // this._auth = auth;
 
         }
         [SwaggerOperation(Tags = new[] { "JobType" }, Summary = "เพิ่มข้อมูล JobType", Description = "เพิ่มข้อมูล JobType")]
@@ -119,7 +119,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "GetById" }, Summary = "Get ข้อมูล by ID", Description = "Get ข้อมูล by ID")]
         [HttpPost("GetById")]
-        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest request)
+        public async Task<MessageResponseModel> GetById([FromBody] JobtypeRequest request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -136,7 +136,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iJobTypeService.GetByIdService(request.Reason_Id);
+                var result = await _iJobTypeService.GetByIdService(request.Jobtype_Id);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -152,7 +152,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "ChangeActive" }, Summary = "เปลี่ยนสถานะข้อมูล", Description = "เปลี่ยนสถานะข้อมูล")]
         [HttpPost("ChangeActive")]
-        public async Task<MessageResponseModel> ChangeActive([FromBody] ReasonRequest request)
+        public async Task<MessageResponseModel> ChangeActive([FromBody] JobtypeRequest request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -169,7 +169,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iJobTypeService.ChangeActiveService(request.Reason_Id, request.Active, user_code);
+                var result = await _iJobTypeService.ChangeActiveService(request.Jobtype_Id, request.Active, user_code);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
