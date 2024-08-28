@@ -92,17 +92,18 @@ namespace N_Health_API.Repositories.Master
             "from jobtype jt " +
             "where jt.jobtype_name = '{0}' "
             + (data?.jobtypeModel?.Jobtype_Id is null || (data?.jobtypeModel.Jobtype_Id <= 0) ? "" : "and jobtype_id != "
-            + data?.jobtypeModel.Jobtype_Id) + " and jt.location_id = '{0}' ";
+            + data?.jobtypeModel.Jobtype_Id);
             var query2 = " and jt.location_id = {0} ";
             query2 = string.Format(query2, data?.jobtypeModel?.Location_Id);
-            query = string.Format(query + query2, data?.jobtypeModel?.Jobtype_Name);
+            query = string.Format(query, data?.jobtypeModel?.Jobtype_Name);
 
             try
             {
-                var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
-                if (result != null)
+                var result = DBSQLPostgre.SQLPostgresSelectCommand(query + query2);
+                if (result != null && result?.AsEnumerable().Count() > 0)
                 {
                     //data เป็น true ให้ถือว่าเจอข้อมูลซ้ำ
+                    msg = msg + string.Format("(Jobtype Name : {0})", data?.jobtypeModel.Jobtype_Name);
                     meg_res.Success = true;
                     meg_res.Message = msg;
                     meg_res.Code = ReturnCode.DUPLICATE_DATA;
@@ -138,14 +139,21 @@ namespace N_Health_API.Repositories.Master
                     condition = string.Format(condition + " jt.active = {0} ", data.Status);
 
                 if (!string.IsNullOrEmpty(data?.Jobtype_Name))
+                {
                     if (!string.IsNullOrEmpty(condition))
                         condition = condition + " and ";
-                condition = string.Format(condition + " jt.jobtype_name = '{0}'", data?.Jobtype_Name);
+                    condition = string.Format(condition + " jt.jobtype_name like '%{0}%'", data?.Jobtype_Name);
+                }
+
 
                 if (!string.IsNullOrEmpty(data?.Short_Location_Name))
+                {
                     if (!string.IsNullOrEmpty(condition))
                         condition = condition + " and ";
-                condition = string.Format(condition + "lc.location_name = '{0}'", data?.Short_Location_Name);
+                    condition = string.Format(condition + "lc.location_name = '{0}'", data?.Short_Location_Name);
+                }
+
+
 
 
                 string query = string.Empty;
@@ -158,13 +166,12 @@ namespace N_Health_API.Repositories.Master
                 ",jt.location_id" +
                 ",jt.product_Detail_Flag" +
                 ",jt.created_by" +
-                ",jt.modified_by" +
-                ",lc.location_name";
+                ",jt.modified_by";
                 string qFromJoin = " from jobtype jt " +
-                " left join location lc on jt.location_id = lc.location_id";
+                " left join userinfo lc on jt.created_by = lc.user_code";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                + $" ORDER BY jt.modified_by OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
+                + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
                 var totalRows = "select  count(jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 
                 List<string> arrSql = new List<string>();
