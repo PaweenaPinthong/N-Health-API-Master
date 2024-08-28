@@ -10,6 +10,8 @@ namespace N_Health_API.RepositoriesInterface.Master
         Task<bool> Edit(JobtypeDataReasone? data, string? userCode);
         Task<MessageResponseModel> CheckDupData(JobtypeDataReasone? data);
         Task<(DataTable, long)> SearchJobData(SearchJobtypeModel? data);
+        Task<DataTable> GetById(int id);
+        Task<bool> ChangeActive(int id, bool isActive, string? userCode);
 
     }
 }

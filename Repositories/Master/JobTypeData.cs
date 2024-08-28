@@ -229,5 +229,52 @@ namespace N_Health_API.Repositories.Master
                 throw;
             }
         }
+
+        public async Task<DataTable> GetById(int id)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+
+            try
+            {
+                var query = "select * from jobtype where jobtype_id = {0}";
+
+                query = string.Format(query, id);
+
+                var result = DBSQLPostgre.SQLPostgresSelectCommand(query);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> ChangeActive(int id, bool isActive, string? userCode)
+        {
+            try
+            {
+                var query = " UPDATE \"jobtype\"  " +
+                            " SET active = @active " +
+                            ", modified_by = @modified_by " +
+                            ", modified_datetime = @modified_datetime  " +
+                            " where jobtype_id = @jobtype_id";
+
+                query = String.Format(query, id);
+
+                List<DBParameter> parameters = new List<DBParameter>();
+                parameters.Add(new DBParameter { Name = "active", Value = isActive, Type = NpgsqlDbType.Boolean });
+                parameters.Add(new DBParameter { Name = "modified_by", Value = userCode, Type = NpgsqlDbType.Varchar });
+                parameters.Add(new DBParameter { Name = "modified_datetime", Value = new DateTimeUtils().NowDateTime(), Type = NpgsqlDbType.Timestamp });
+                parameters.Add(new DBParameter { Name = "jobtype_id", Value = id, Type = NpgsqlDbType.Integer });
+
+                var res = DBSQLPostgre.SQLPostgresExecutionCommand(query, parameters);
+                return res;
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

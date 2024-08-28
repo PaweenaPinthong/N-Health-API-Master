@@ -115,5 +115,72 @@ namespace N_Health_API.Controllers.Master
             }
             return msgResult;
         }
+
+        [SwaggerOperation(Tags = new[] { "GetById" }, Summary = "Get ข้อมูล by ID", Description = "Get ข้อมูล by ID")]
+        [HttpPost("GetById")]
+        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest request)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iJobTypeService.GetByIdService(request.Reason_Id);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+
+            return msgResult;
+        }
+
+        [SwaggerOperation(Tags = new[] { "ChangeActive" }, Summary = "เปลี่ยนสถานะข้อมูล", Description = "เปลี่ยนสถานะข้อมูล")]
+        [HttpPost("ChangeActive")]
+        public async Task<MessageResponseModel> ChangeActive([FromBody] ReasonRequest request)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iJobTypeService.ChangeActiveService(request.Reason_Id, request.Active, user_code);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+            return msgResult;
+
+        }
     }
 }
