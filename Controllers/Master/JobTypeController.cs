@@ -16,9 +16,10 @@ namespace N_Health_API.Controllers.Master
 
         private readonly IJobTypeService _iJobTypeService;
         private readonly IAccessTokenService _auth;
-        public JobTypeController(IJobTypeService iJobTypeService)
+        public JobTypeController(IJobTypeService iJobTypeService, IAccessTokenService auth)
         {
             this._iJobTypeService = iJobTypeService;
+            this._auth = auth;
 
         }
         [SwaggerOperation(Tags = new[] { "JobType" }, Summary = "เพิ่มข้อมูล JobType", Description = "เพิ่มข้อมูล JobType")]
