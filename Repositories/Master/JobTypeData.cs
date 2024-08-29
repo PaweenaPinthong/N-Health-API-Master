@@ -166,9 +166,12 @@ namespace N_Health_API.Repositories.Master
                 ",jt.location_id" +
                 ",jt.product_Detail_Flag" +
                 ",jt.created_by" +
-                ",jt.modified_by";
+                ",jt.modified_by" +
+                ",r.reason_name ";
                 string qFromJoin = " from jobtype jt " +
-                " left join userinfo lc on jt.created_by = lc.user_code";
+                " left join userinfo lc on jt.created_by = lc.user_code" +
+                " inner join jobtype_reason jr on jr.jobtype_id = jt.jobtype_id" +
+                " left join reason r on r.reason_id = jr.reason_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
                 + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
@@ -243,7 +246,12 @@ namespace N_Health_API.Repositories.Master
 
             try
             {
-                var query = "select * from jobtype where jobtype_id = {0}";
+                var query = "select j.* "
+                + ",r.reason_name "
+                + "from jobtype j "
+                + "inner join jobtype_reason jr on jr.jobtype_id = j.jobtype_id "
+                + "left join reason r on r.reason_id = jr.reason_id "
+                + "where j.jobtype_id = {0}";
 
                 query = string.Format(query, id);
 

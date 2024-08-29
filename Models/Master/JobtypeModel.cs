@@ -12,6 +12,7 @@ namespace N_Health_API.Models.Master
         public bool? Product_Detail_Flag { get; set; }
         public string? Team { get; set; } = string.Empty;
         public bool? Active { get; set; }
+        public string? Reason_Name { get; set; } = string.Empty;
     }
 
     public class JobtypeDataReasone
@@ -33,7 +34,7 @@ namespace N_Health_API.Models.Master
         public string? Short_Location_Name { get; set; }
     }
 
-     public class JobtypeRequest
+    public class JobtypeRequest
     {
         public int Jobtype_Id { get; set; }
         public bool Active { get; set; }
