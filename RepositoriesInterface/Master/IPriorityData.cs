@@ -8,8 +8,8 @@ namespace N_Health_API.RepositoriesInterface.Master
     {
         Task<bool> Add(PriorityModel? priorityModel, string? userCode);
         Task<bool> Edit(PriorityModel? priorityModel, string? userCode);
-        Task<DataTable> GetById(int id);
-        Task<bool> ChangeActive(int id, bool isActive, string? userCode);
+        Task<DataTable> GetById(int? id);
+        Task<bool> ChangeActive(int? id, bool? isActive, string? userCode);
         Task<(DataTable, long)> Search(SearchPriorityModel? dataSearch);
         Task<MessageResponseModel> CheckDupData(PriorityModel? priorityModel);
 
