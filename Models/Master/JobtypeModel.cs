@@ -13,6 +13,8 @@ namespace N_Health_API.Models.Master
         public string? Team { get; set; } = string.Empty;
         public bool? Active { get; set; }
         public string? Reason_Name { get; set; } = string.Empty;
+        public string? Location_Name {get; set;} = string.Empty;
+        public string? User_Name {get; set;} = string.Empty;
     }
 
     public class JobtypeDataReasone

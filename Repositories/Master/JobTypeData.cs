@@ -150,7 +150,7 @@ namespace N_Health_API.Repositories.Master
                 {
                     if (!string.IsNullOrEmpty(condition))
                         condition = condition + " and ";
-                    condition = string.Format(condition + "lc.location_name = '{0}'", data?.Short_Location_Name);
+                    condition = string.Format(condition + "lc.location_name = like '%{0}%'", data?.Short_Location_Name);
                 }
 
 
@@ -167,14 +167,17 @@ namespace N_Health_API.Repositories.Master
                 ",jt.product_Detail_Flag" +
                 ",jt.created_by" +
                 ",jt.modified_by" +
-                ",MAX(r.reason_name) AS reason_name ";
+                ",MAX(r.reason_name) AS reason_name " +
+                ",l.location_name" +
+                ",lc.user_name";
                 string qFromJoin = " from jobtype jt " +
                 " left join userinfo lc on jt.created_by = lc.user_code" +
+                " left join \"location\" l on jt.location_id =l.location_id " +
                 " inner join jobtype_reason jr on jr.jobtype_id = jt.jobtype_id" +
-                " GROUP by jt.jobtype_id" +
                 " left join reason r on r.reason_id = jr.reason_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
+                + " GROUP by jt.jobtype_id , l.location_id , lc.user_name" 
                 + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
                 var totalRows = "select  count(jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 
