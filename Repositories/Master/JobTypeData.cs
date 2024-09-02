@@ -258,11 +258,14 @@ namespace N_Health_API.Repositories.Master
             try
             {
                 var query = "select j.* "
-                + ",r.reason_name "
+                + ",l.short_location_name "
+                + ",ARRAY_AGG(JSON_BUILD_OBJECT('reason_id', r.reason_id, 'reason_name', r.reason_name) ORDER BY r.reason_id) AS reason_list "
                 + "from jobtype j "
                 + "inner join jobtype_reason jr on jr.jobtype_id = j.jobtype_id "
+                + "left join \"location\" l on l.location_id = j.location_id "
                 + "left join reason r on r.reason_id = jr.reason_id "
-                + "where j.jobtype_id = {0}";
+                + "where j.jobtype_id = {0} "
+                + "GROUP BY j.jobtype_id ,l.short_location_name ";
 
                 query = string.Format(query, id);
 

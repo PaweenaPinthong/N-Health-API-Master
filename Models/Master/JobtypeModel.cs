@@ -1,4 +1,5 @@
-﻿using N_Health_API.Models.Shared;
+﻿using System.Text.Json.Serialization;
+using N_Health_API.Models.Shared;
 
 namespace N_Health_API.Models.Master
 {
@@ -13,8 +14,28 @@ namespace N_Health_API.Models.Master
         public string? Team { get; set; } = string.Empty;
         public bool? Active { get; set; }
         public string? Reason_Name { get; set; } = string.Empty;
-        public string? Location_Name {get; set;} = string.Empty;
-        public string? User_Name {get; set;} = string.Empty;
+        [JsonIgnore]
+        public string[]? Reason_List { get; set; } = new string[0];
+        public List<JobtypeReasonsList>? Reason_List_Value { get; set; } = new List<JobtypeReasonsList>();
+        public string? Location_Name { get; set; } = string.Empty;
+        public string? User_Name { get; set; } = string.Empty;
+    }
+
+    public class JobtypeModelGetBy : MasterModel
+    {
+        public int? Jobtype_Id { get; set; }
+        public string? Jobtype_Code { get; set; } = string.Empty;
+        public string? Jobtype_Name { get; set; } = string.Empty;
+        public string? Jobtype_Desc { get; set; } = string.Empty;
+        public int? Location_Id { get; set; }
+        public bool? Product_Detail_Flag { get; set; }
+        public string? Team { get; set; } = string.Empty;
+        public bool? Active { get; set; }
+        public string? Reason_Name { get; set; } = string.Empty;
+        [JsonIgnore]
+        public string[]? Reason_List { get; set; } = new string[0];
+        public List<JobtypeReasonsList>? Reason_List_Value { get; set; } = new List<JobtypeReasonsList>();
+        public string? Short_Location_Name { get; set; } = string.Empty;
     }
 
     public class JobtypeDataReasone
@@ -40,5 +61,11 @@ namespace N_Health_API.Models.Master
     {
         public int Jobtype_Id { get; set; }
         public bool Active { get; set; }
+    }
+
+    public class JobtypeReasonsList
+    {
+        public int? Reason_Id { get; set; }
+        public string? Reason_Name { get; set; }
     }
 }
