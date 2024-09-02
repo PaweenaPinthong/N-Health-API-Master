@@ -169,7 +169,7 @@ namespace N_Health_API.Repositories.Master
                 ",jt.modified_by" +
                 ",MAX(r.reason_name) AS reason_name " +
                 ",l.location_name" +
-                ",lc.user_name";
+                ",lc.\"name\"";
                 string qFromJoin = " from jobtype jt " +
                 " left join userinfo lc on jt.created_by = lc.user_code" +
                 " left join \"location\" l on jt.location_id =l.location_id " +
@@ -177,7 +177,7 @@ namespace N_Health_API.Repositories.Master
                 " left join reason r on r.reason_id = jr.reason_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                + " GROUP by jt.jobtype_id , l.location_id , lc.user_name" 
+                + " GROUP by jt.jobtype_id , l.location_id , lc.\"name\"" 
                 + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
                 var totalRows = "select  count(jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 
