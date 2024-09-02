@@ -18,7 +18,7 @@ namespace N_Health_API.Services.Master
         }
 
 
-        public async Task<MessageResponseModel> AddService(PriorityJobtypeDataModel data, string? userCode)
+        public async Task<MessageResponseModel> AddService(PriorityJobtypeDataModel? data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -55,7 +55,7 @@ namespace N_Health_API.Services.Master
             }
         }
 
-        public async Task<MessageResponseModel> ChangeActiveService(int id, bool isActive, string? userCode)
+        public async Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -80,7 +80,7 @@ namespace N_Health_API.Services.Master
             }
         }
 
-        public async Task<MessageResponseModel> EditService(PriorityJobtypeDataModel data, string? userCode)
+        public async Task<MessageResponseModel> EditService(PriorityJobtypeDataModel? data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -117,7 +117,7 @@ namespace N_Health_API.Services.Master
             }
         }
 
-        public async Task<MessageResponseModel> GetByIdService(int id)
+        public async Task<MessageResponseModel> GetByIdService(int? id)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -132,7 +132,7 @@ namespace N_Health_API.Services.Master
                 PriorityJobtypeModelById? pJobType = Util.ConvertDataTableToList<PriorityJobtypeModelById>(res).FirstOrDefault();
                 List<PriorityJobtypeJobtypeModelById> pJobTypelist = Util.ConvertDataTableToList<PriorityJobtypeJobtypeModelById>(resJobType);
                 data.PriorityJobtype = pJobType;
-                data.Jobtype = pJobTypelist;
+                data.PriorityJobtype.Jobtype = pJobTypelist;
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;

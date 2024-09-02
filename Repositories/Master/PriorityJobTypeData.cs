@@ -13,7 +13,7 @@ namespace N_Health_API.Repositories.Master
 {
     public class PriorityJobTypeData : IPriorityJobTypeData
     {
-        public async Task<bool> Add(PriorityJobtypeDataModel data, string? userCode)
+        public async Task<bool> Add(PriorityJobtypeDataModel? data, string? userCode)
         {
             bool result = false;
             DateTime dateTime = new DateTimeUtils().NowDateTime();
@@ -72,7 +72,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<bool> ChangeActive(int id, bool isActive, string? userCode)
+        public async Task<bool> ChangeActive(int? id, bool? isActive, string? userCode)
         {
             bool result = false;
             DateTime dateTime = new DateTimeUtils().NowDateTime();
@@ -100,7 +100,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<MessageResponseModel> CheckDupData(PriorityJobtypeDataModel data)
+        public async Task<MessageResponseModel> CheckDupData(PriorityJobtypeDataModel? data)
         {
             MessageResponseModel meg_res = new MessageResponseModel();
             try
@@ -139,7 +139,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<bool> Edit(PriorityJobtypeDataModel data, string? userCode)
+        public async Task<bool> Edit(PriorityJobtypeDataModel? data, string? userCode)
         {
             bool result = false;
             DateTime dateTime = new DateTimeUtils().NowDateTime();
@@ -193,7 +193,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<DataTable> GetById(int id)
+        public async Task<DataTable> GetById(int? id)
         {
             try
             {
@@ -223,7 +223,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<DataTable> GetListJobTypeById(int id)
+        public async Task<DataTable> GetListJobTypeById(int? id)
         {
              try
             {
