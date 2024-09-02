@@ -26,7 +26,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Product Type" }, Summary = "เพิ่มข้อมูล Product Type",Description = "เพิ่มข้อมูล Product Type")]
         [HttpPost("Add")]
-        public async Task<MessageResponseModel> Add([FromBody] ProductTypeModel model)
+        public async Task<MessageResponseModel> Add([FromBody] ProductTypeModel? model)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -59,7 +59,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Product Type" }, Summary = "เปลี่ยนสถานะ Active", Description = "เปลี่ยนสถานะ Active")]
         [HttpPost("ChangeActive")]
-        public async Task<MessageResponseModel> ChangeActive([FromBody] ProductTypeRequest request)
+        public async Task<MessageResponseModel> ChangeActive([FromBody] ProductTypeRequest? request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -75,7 +75,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iProductType.ChangeActiveService(request.Product_Type_Id, request.Active, user_code);
+                var result = await _iProductType.ChangeActiveService(request?.Product_Type_Id, request?.Active, user_code);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -90,7 +90,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Product Type" }, Summary = "แก้ไขข้อมูล Product Type", Description = "แก้ไขข้อมูล Product Type")]
         [HttpPost("Edit")]
-        public async Task<MessageResponseModel> Edit([FromBody] ProductTypeModel model)
+        public async Task<MessageResponseModel> Edit([FromBody] ProductTypeModel? model)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -123,7 +123,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Product Type" } , Summary = "Get ช้อมูล by ID",Description = "Get ช้อมูล by ID")]
         [HttpPost("GetById")]
-        public async Task<MessageResponseModel> GetById([FromBody] ProductTypeRequest request)
+        public async Task<MessageResponseModel> GetById([FromBody] ProductTypeRequest? request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -140,7 +140,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iProductType.GetByIdService(request.Product_Type_Id);
+                var result = await _iProductType.GetByIdService(request?.Product_Type_Id);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -156,7 +156,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Product Type" }, Summary = "Search Product Type", Description = "Search Product Type")]
         [HttpPost("Search")]
-        public async Task<MessageResponseModel> Search([FromBody] SearchProductTypeModel data)
+        public async Task<MessageResponseModel> Search([FromBody] SearchProductTypeModel? data)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;

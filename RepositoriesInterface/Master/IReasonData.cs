@@ -8,8 +8,8 @@ namespace N_Health_API.RepositoriesInterface.Master
     {
         Task<bool> Add(ReasonModel? data, string? userCode);
         Task<bool> Edit(ReasonModel? data, string? userCode);
-        Task<DataTable> GetById(int id);
-        Task<bool> ChangeActive(int id, bool isActive, string? userCode);
+        Task<DataTable> GetById(int? id);
+        Task<bool> ChangeActive(int? id, bool? isActive, string? userCode);
         Task<(DataTable, long)> Search(SearchReasonModel? data);
         Task<MessageResponseModel> CheckDupData(ReasonModel? data);//เช็คข้อมูล ถ้า return true ถือว่ามีข้อมูลซ้ำ
 
