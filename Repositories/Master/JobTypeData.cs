@@ -167,10 +167,11 @@ namespace N_Health_API.Repositories.Master
                 ",jt.product_Detail_Flag" +
                 ",jt.created_by" +
                 ",jt.modified_by" +
-                ",r.reason_name ";
+                ",MAX(r.reason_name) AS reason_name ";
                 string qFromJoin = " from jobtype jt " +
                 " left join userinfo lc on jt.created_by = lc.user_code" +
                 " inner join jobtype_reason jr on jr.jobtype_id = jt.jobtype_id" +
+                " GROUP by jt.jobtype_id" +
                 " left join reason r on r.reason_id = jr.reason_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
