@@ -150,7 +150,14 @@ namespace N_Health_API.Repositories.Master
                 {
                     if (!string.IsNullOrEmpty(condition))
                         condition = condition + " and ";
-                    condition = string.Format(condition + "lc.location_name = like '%{0}%'", data?.Short_Location_Name);
+                    condition = string.Format(condition + " l.location_name like '%{0}%'", data?.Short_Location_Name);
+                }
+
+                if (!string.IsNullOrEmpty(data?.Team))
+                {
+                    if (!string.IsNullOrEmpty(condition))
+                        condition = condition + " and ";
+                    condition = string.Format(condition + " jt.team like '%{0}%'", data?.Team);
                 }
 
 
@@ -179,7 +186,7 @@ namespace N_Health_API.Repositories.Master
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
                 + " GROUP by jt.jobtype_id , l.location_id , lc.\"name\"" 
                 + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
-                var totalRows = "select  count(jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+                var totalRows = "select  count(jt.jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 
                 List<string> arrSql = new List<string>();
                 arrSql.Add(query);
