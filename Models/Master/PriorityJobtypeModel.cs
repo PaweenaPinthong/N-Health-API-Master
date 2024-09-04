@@ -52,9 +52,9 @@ namespace N_Health_API.Models.Master
 
     public class PriorityJobtypeJobtypeModelById
     {
-        public int Priority_Jobtype_Id { get; set; }
-        public int Jobtype_Id { get; set; }
-        public string Jobtype_Name { get; set; } = string.Empty;
+        public int?Priority_Jobtype_Id { get; set; }
+        public int?Jobtype_Id { get; set; }
+        public string? Jobtype_Name { get; set; } = string.Empty;
     }
 
     public class SearchPriorityJobtypeModel : RequestParameterModel
@@ -69,16 +69,16 @@ namespace N_Health_API.Models.Master
 
     public class SearchPriorityJobtypeResponseModel : MasterModel
     {
-        public int Priority_Jobtype_Id { get; set; }
-        public string Priority_Jobtype_Code { get; set; } = string.Empty;
-        public int Priority_Id { get; set; }
-        public int Location_Id { get; set; }
-        public string Priority_Name { get; set; } = string.Empty;
-        public string Jobtype_Name { get; set; } = string.Empty;
-        public string Team { get; set; } = string.Empty;
-        public int Service_Time { get; set; }
-        public int Waiting_Time { get; set; }
-        public bool Active { get; set; }
+        public int? Priority_Jobtype_Id { get; set; }
+        public string? Priority_Jobtype_Code { get; set; } = string.Empty;
+        public int? Priority_Id { get; set; }
+        public int? Location_Id { get; set; }
+        public string? Priority_Name { get; set; } = string.Empty;
+        public string? Jobtype_Name { get; set; } = string.Empty;
+        public string? Team { get; set; } = string.Empty;
+        public int? Service_Time { get; set; }
+        public int? Waiting_Time { get; set; }
+        public bool? Active { get; set; }
 
     }
 }
