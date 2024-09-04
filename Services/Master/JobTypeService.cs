@@ -3,6 +3,7 @@ using N_Health_API.Models.Master;
 using N_Health_API.Models.Shared;
 using N_Health_API.RepositoriesInterface.Master;
 using N_Health_API.ServicesInterfece.Master;
+using Newtonsoft.Json;
 
 namespace N_Health_API.Services.Master
 {
@@ -19,7 +20,7 @@ namespace N_Health_API.Services.Master
         }
 
 
-        public async Task<MessageResponseModel> AddService(JobtypeDataReasone data, string? userCode)
+        public async Task<MessageResponseModel> AddService(JobtypeDataReasone? data, string? userCode)
         {
             MessageResponseModel meg_res = new MessageResponseModel();
             string methodName = Util.GetMethodName();
@@ -55,7 +56,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-        public async Task<MessageResponseModel> EditService(JobtypeDataReasone data, string? userCode)
+        public async Task<MessageResponseModel> EditService(JobtypeDataReasone? data, string? userCode)
         {
             MessageResponseModel meg_res = new MessageResponseModel();
             string methodName = Util.GetMethodName();
@@ -91,7 +92,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-        public async Task<MessageResponseModel> SearchService(SearchJobtypeModel data)
+        public async Task<MessageResponseModel> SearchService(SearchJobtypeModel? data)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -118,7 +119,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-        public async Task<MessageResponseModel> GetByIdService(int id)
+        public async Task<MessageResponseModel> GetByIdService(int? id)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -129,7 +130,14 @@ namespace N_Health_API.Services.Master
             try
             {
                 var res = await _repo.GetById(id);
-                JobtypeModel? data = Util.ConvertDataTableToList<JobtypeModel>(res).FirstOrDefault();
+                JobtypeModelGetBy? data = Util.ConvertDataTableToList<JobtypeModelGetBy>(res).FirstOrDefault();
+                // string jsonArray = data.Reason_List;
+                string jsonArray = "[" + string.Join(",", data.Reason_List) + "]";
+
+                // Deserialize JSON array to List<JobtypeReasonsList>
+                List<JobtypeReasonsList> reasonsList = JsonConvert.DeserializeObject<List<JobtypeReasonsList>>(jsonArray);
+
+                data.Reason_List_Value = reasonsList;
                 meg_res.Success = true;
                 meg_res.Message = ReturnMessage.SUCCESS;
                 meg_res.Code = ReturnCode.SUCCESS;
@@ -142,7 +150,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-         public async Task<MessageResponseModel> ChangeActiveService(int id, bool isActive, string? userCode)
+        public async Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();

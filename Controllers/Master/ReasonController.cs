@@ -26,7 +26,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "เพิ่มข้อมูล Reason",Description = "เพิ่มข้อมูล Reason")]
         [HttpPost("Add")]
-        public async Task<MessageResponseModel> Add([FromBody] ReasonModel model)
+        public async Task<MessageResponseModel> Add([FromBody] ReasonModel? model)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -59,7 +59,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "เปลี่ยนสถานะข้อมูล", Description = "เปลี่ยนสถานะข้อมูล")]
         [HttpPost("ChangeActive")]
-        public async Task<MessageResponseModel> ChangeActive([FromBody] ReasonRequest request)
+        public async Task<MessageResponseModel> ChangeActive([FromBody] ReasonRequest? request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -76,7 +76,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iReason.ChangeActiveService(request.Reason_Id,request.Active,user_code);
+                var result = await _iReason.ChangeActiveService(request?.Reason_Id,request?.Active,user_code);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -92,7 +92,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "แก้ไขข้อมูล Reason", Description = "แก้ไขข้อมูล Reason")]
         [HttpPost("Edit")]
-        public async Task<MessageResponseModel> Edit([FromBody] ReasonModel model)
+        public async Task<MessageResponseModel> Edit([FromBody] ReasonModel? model)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -125,7 +125,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Get ข้อมูล by ID", Description = "Get ข้อมูล by ID")]
         [HttpPost("GetById")]
-        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest request)
+        public async Task<MessageResponseModel> GetById([FromBody] ReasonRequest? request)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;
@@ -142,7 +142,7 @@ namespace N_Health_API.Controllers.Master
                     return checkAuth_RES;
                 }
 
-                var result = await _iReason.GetByIdService(request.Reason_Id);
+                var result = await _iReason.GetByIdService(request?.Reason_Id);
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
@@ -158,7 +158,7 @@ namespace N_Health_API.Controllers.Master
 
         [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Search Reason", Description = "Search Reason")]
         [HttpPost("Search")]
-        public async Task<MessageResponseModel> Search([FromBody] SearchReasonModel data)
+        public async Task<MessageResponseModel> Search([FromBody] SearchReasonModel? data)
         {
             MessageResponseModel msgResult = new MessageResponseModel();
             msgResult.Code = ReturnCode.SYSTEM_ERROR;

@@ -17,7 +17,7 @@ namespace N_Health_API.Services.Master
             _repo = repo;
         }
 
-        public async Task<MessageResponseModel> AddService(ProductTypeModel data, string? userCode)
+        public async Task<MessageResponseModel> AddService(ProductTypeModel? data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -54,7 +54,7 @@ namespace N_Health_API.Services.Master
 
         }
 
-        public async  Task<MessageResponseModel> ChangeActiveService(int id, bool isActive, string? userCode)
+        public async  Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -79,7 +79,7 @@ namespace N_Health_API.Services.Master
 
         }
 
-        public async Task<MessageResponseModel> EditService(ProductTypeModel data, string? userCode)
+        public async Task<MessageResponseModel> EditService(ProductTypeModel? data, string? userCode)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -115,7 +115,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-        public async Task<MessageResponseModel> GetByIdService(int id)
+        public async Task<MessageResponseModel> GetByIdService(int? id)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();
@@ -139,7 +139,7 @@ namespace N_Health_API.Services.Master
             return meg_res;
         }
 
-        public async Task<MessageResponseModel> SearchService(SearchProductTypeModel data)
+        public async Task<MessageResponseModel> SearchService(SearchProductTypeModel? data)
         {
             string methodName = Util.GetMethodName();
             MessageResponseModel meg_res = new MessageResponseModel();

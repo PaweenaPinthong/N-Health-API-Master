@@ -11,7 +11,7 @@ namespace N_Health_API.Repositories.Master
 {
     public class ProductTypeData : IProductTypeData
     {
-        public async Task<bool> Add(ProductTypeModel? data, string userCode)
+        public async Task<bool> Add(ProductTypeModel? data, string? userCode)
         {
             bool result = false;
 
@@ -66,7 +66,7 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<bool> ChangeActive(int id, bool isActive, string? userCode)
+        public async Task<bool> ChangeActive(int? id, bool? isActive, string? userCode)
         {
             try
             {
@@ -165,7 +165,7 @@ namespace N_Health_API.Repositories.Master
 
         }
 
-        public async Task<DataTable> GetById(int id)
+        public async Task<DataTable> GetById(int? id)
         {
             MessageResponseModel meg_res = new MessageResponseModel();
             try

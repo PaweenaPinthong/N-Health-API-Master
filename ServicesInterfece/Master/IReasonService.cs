@@ -5,10 +5,10 @@ namespace N_Health_API.ServicesInterfece.Master
 {
     public interface IReasonService
     {
-        Task<MessageResponseModel> SearchService(SearchReasonModel data);
-        Task<MessageResponseModel> GetByIdService(int id);
-        Task<MessageResponseModel> AddService(ReasonModel data, string? userCode);
-        Task<MessageResponseModel> EditService(ReasonModel data, string? userCode);
-        Task<MessageResponseModel> ChangeActiveService(int id, bool isActive, string? userCode);
+        Task<MessageResponseModel> SearchService(SearchReasonModel? data);
+        Task<MessageResponseModel> GetByIdService(int? id);
+        Task<MessageResponseModel> AddService(ReasonModel? data, string? userCode);
+        Task<MessageResponseModel> EditService(ReasonModel? data, string? userCode);
+        Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive, string? userCode);
     }
 }
