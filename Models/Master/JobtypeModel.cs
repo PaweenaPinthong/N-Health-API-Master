@@ -59,8 +59,8 @@ namespace N_Health_API.Models.Master
 
     public class JobtypeRequest
     {
-        public int Jobtype_Id { get; set; }
-        public bool Active { get; set; }
+        public int? Jobtype_Id { get; set; }
+        public bool? Active { get; set; }
     }
 
     public class JobtypeReasonsList
