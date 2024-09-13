@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using BusinessIdeaMasterAPIs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using N_Health_API.Models.Master;
@@ -179,6 +180,31 @@ namespace N_Health_API.Controllers.Master
             catch (Exception ex)
             {
                 msgResult.Message = ex.Message;
+            }
+            return msgResult;
+
+        }
+
+        [SwaggerOperation(Tags = new[] { "Import Excel" }, Summary = "อัพโหลดไฟล์ excel", Description = "อัพโหลดไฟล์ excel")]
+        [HttpPost("Import Excel")]
+        public async Task<MessageResponseModel> ImportExcel(IFormFile FileExcel)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            string? user_code = Request.Headers["UserCode"];
+            var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+            try
+            {
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+                msgResult = await _iJobTypeService.ImportOrderService(FileExcel, user_code!);
+
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+                return msgResult;
             }
             return msgResult;
 

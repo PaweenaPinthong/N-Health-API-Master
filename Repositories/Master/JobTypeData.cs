@@ -2,6 +2,8 @@ using System.ComponentModel.Design;
 using System.Data;
 using System.Globalization;
 using System.Text;
+using BusinessIdeaMasterAPIs.Models;
+using Microsoft.AspNetCore.Mvc;
 using N_Health_API.Core;
 using N_Health_API.Helper;
 using N_Health_API.Models;
@@ -21,7 +23,7 @@ namespace N_Health_API.Repositories.Master
             _config = config;
         }
 
-        public async Task<bool> Add(JobtypeDataReasone? data, string? userCode)
+        public async Task<bool> Add(JobtypeDataReasone? data, string? userCode, bool? isImport)
         {
             bool result = false;
             List<string> arrSql = new List<string>();
@@ -34,7 +36,11 @@ namespace N_Health_API.Repositories.Master
                 {
                     string typeStr = "JT";
                     var lastId = "select jobtype_id from jobtype where created_datetime is not null order by created_datetime desc limit 1";
-                    data.jobtypeModel.Jobtype_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                    if (isImport == false)
+                    {
+                        data.jobtypeModel!.Jobtype_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+
+                    }
                     arrSql.Add(lastId);
 
                     var qInst = "  INSERT INTO \"jobtype\"  " +
@@ -184,7 +190,7 @@ namespace N_Health_API.Repositories.Master
                 " left join reason r on r.reason_id = jr.reason_id ";
 
                 query = qField + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}")
-                + " GROUP by jt.jobtype_id , l.location_id , lc.\"name\"" 
+                + " GROUP by jt.jobtype_id , l.location_id , lc.\"name\""
                 + $" ORDER BY jt.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
                 var totalRows = "select  count(jt.jobtype_id) as count_rows " + qFromJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
 
@@ -302,6 +308,23 @@ namespace N_Health_API.Repositories.Master
             }
             catch
             {
+                throw;
+            }
+        }
+
+        public async Task<MessageResponseModel> ImportOrder(string? id, string? memberCode)
+        {
+
+            MessageResponseModel meg_res = new MessageResponseModel();
+            try
+            {
+                var query = $"select * from jobtype j  where jobtype_id = {id}";
+                var res = DBSQLPostgre.SQLPostgresSelectCommand(query);
+                return meg_res;
+            }
+            catch
+            {
+
                 throw;
             }
         }

@@ -1,4 +1,6 @@
 using System.Data;
+using BusinessIdeaMasterAPIs.Models;
+using Microsoft.AspNetCore.Mvc;
 using N_Health_API.Models.Master;
 using N_Health_API.Models.Shared;
 
@@ -11,5 +13,6 @@ namespace N_Health_API.ServicesInterfece.Master
         Task<MessageResponseModel> SearchService(SearchJobtypeModel? data);
         Task<MessageResponseModel> GetByIdService(int? id);
         Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive, string? userCode);
+        Task<MessageResponseModel> ImportOrderService([FromForm] IFormFile fileExcel, string memberCode);
     }
 }
