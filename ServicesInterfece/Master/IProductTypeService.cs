@@ -10,5 +10,7 @@ namespace N_Health_API.ServicesInterfece.Master
         Task<MessageResponseModel> AddService(ProductTypeModel? data, string? userCode);
         Task<MessageResponseModel> EditService(ProductTypeModel? data, string? userCode);
         Task<MessageResponseModel> ChangeActiveService(int? id, bool? isActive,string? userCode);
+        Task<MessageResponseModel> ImportProductType(IFormFile? data,string? user_name);
+        Task<MessageResponseModel> ExportProductType(SearchProductTypeModel? data,string? userCode);
     }
 }

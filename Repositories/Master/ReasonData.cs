@@ -13,7 +13,7 @@ namespace N_Health_API.Repositories.Master
 {
     public class ReasonData : IReasonData
     {
-        public async Task<bool> Add(ReasonModel? data, string? userCode)
+        public async Task<bool> Add(ReasonModel? data, string? userCode,bool? isImportexcel)
         {
             bool result = false;
 
@@ -21,11 +21,20 @@ namespace N_Health_API.Repositories.Master
                 List<String> arrSql = new List<string>();
                 DateTime dateTime = new DateTimeUtils().NowDateTime();
                 if(data != null)
-                {
-                    string typeStr = "RE";
-                    var lastId = "select reason_id from reason where created_datetime is not null order by created_datetime desc limit 1";
-                    data.Reason_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
-                    arrSql.Add(lastId);
+                {   
+                    if(isImportexcel == false)
+                    {
+                      string typeStr = "RE";
+                      var lastId = "select reason_id from reason where created_datetime is not null order by created_datetime desc limit 1";
+                      data.Reason_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                      arrSql.Add(lastId);
+                    }
+                    else
+                    {
+                        var lastIdIm = "select reason_id from reason where created_datetime is not null order by created_datetime desc limit 1";
+                        data.Reason_Code = data.Reason_Code;
+                        arrSql.Add(lastIdIm);
+                    }
                 }
 
                 var qInst = "INSERT INTO reason" +
@@ -96,7 +105,7 @@ namespace N_Health_API.Repositories.Master
                 String? msg = string.Empty;
                 var query = "select r.*" +
                             " from reason r " +
-                            " where r.reason_name = '{0}'" + (data?.Reason_Id is null || (data?.Reason_Id <= 0) ? "" : " and r.reason_id != " + data?.Reason_Id);
+                            " where replace(r.reason_name,' ','') =  replace('{0}',' ','') " + (data?.Reason_Id is null || (data?.Reason_Id <= 0) ? "" : " and r.reason_id != " + data?.Reason_Id);
 
                 query = string.Format(query, data?.Reason_Name);
 
@@ -176,13 +185,14 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<(DataTable, long)> Search(SearchReasonModel? data)
+        public async Task<List<string>> QuerySearch(SearchReasonModel data)
         {
-            MessageResponseModel meg_res = new MessageResponseModel();
             try
             {
                 string condition = string.Empty;
                 string query = string.Empty;
+
+                List<string> listquery = new List<string>();
 
                 if (data?.Active != null)//status
                 {
@@ -196,7 +206,7 @@ namespace N_Health_API.Repositories.Master
 
                 if (data?.Datetime != null)
                 {
-                   var date = Util.ConvertDateTHToString(data?.Datetime);
+                    var date = Util.ConvertDateTHToString(data?.Datetime);
                     if (condition.Length > 0)
                     {
                         condition = condition + string.Format(" and DATE(r.created_datetime) = '{0}' ", date);
@@ -205,7 +215,6 @@ namespace N_Health_API.Repositories.Master
                     {
                         condition = condition + string.Format(" DATE(r.created_datetime) = '{0}' ", date);
                     }
-
                 }
 
                 string qField = "select " +
@@ -221,14 +230,42 @@ namespace N_Health_API.Repositories.Master
                               " ,TO_CHAR(r.modified_datetime ::timestamp, 'DD/MM/YYYY') AS Update_Date_Str " +
                               " ,r.modified_by as Update_By " +
                               " ,CONCAT(um.\"name\",' ',um.lastname) as Update_Name ";
-                
+
                 string qJoin = " from reason r left join userinfo uc on r.created_by = uc.user_code " +
                                " left join userinfo um on r.modified_by = um.user_code ";
 
-                query = qField + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}") +
+                query = qField + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+
+
+                listquery.Insert(0, condition);
+
+                listquery.Insert(1, query);
+
+                return listquery;
+            }
+            catch
+            {
+                throw;
+            }
+        } 
+
+        public async Task<(DataTable, long)> Search(SearchReasonModel? data)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            try
+            {
+               
+                string query = string.Empty;
+
+                List<string> querySearch = await QuerySearch(data);
+
+                query = querySearch[1] +
                         $" ORDER BY r.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
-                var totalRows = "select count(r.reason_id) as count_rows " + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+                string qJoin = " from reason r left join userinfo uc on r.created_by = uc.user_code " +
+                             " left join userinfo um on r.modified_by = um.user_code ";
+
+                var totalRows = "select count(r.reason_id) as count_rows " + qJoin + (string.IsNullOrEmpty(querySearch[0]) ? "" : $" where {querySearch[0]}");
 
                 List<string> arrSql = new List<string>();
                 arrSql.Add(query);
@@ -236,6 +273,28 @@ namespace N_Health_API.Repositories.Master
                 var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
                 return result;
 
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<(DataTable, long)> SearchExport(SearchReasonModel? data)
+        {
+            MessageResponseModel meg_res = new MessageResponseModel();
+            try
+            {
+                string query = string.Empty;
+
+                List<string> querySearch = await QuerySearch(data);
+
+                query = querySearch[1] + $" ORDER BY r.modified_datetime DESC;\r\n";
+
+                List<string> arrSql = new List<string>();
+                arrSql.Add(query);
+                var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
+                return result;
             }
             catch
             {

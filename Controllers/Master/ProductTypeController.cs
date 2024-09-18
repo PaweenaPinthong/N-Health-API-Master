@@ -184,5 +184,73 @@ namespace N_Health_API.Controllers.Master
             return msgResult;
         }
 
+        [SwaggerOperation(Tags = new[] { "Product Type" },Summary = "Import Produc Type", Description = "Import Product Type")]
+        [HttpPost("ImportProductType")]
+        [Consumes("multipart/form-data")]
+        public async Task<MessageResponseModel> ImportProductType(IFormFile? FileExcel)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iProductType.ImportProductType(FileExcel, user_code);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+
+            return msgResult;
+        }
+
+        [SwaggerOperation(Tags = new[] { "Product Type" }, Summary = "Export Product Type", Description = "Export Product Type")]
+        [HttpPost("ExportProductType")]
+        public async Task<MessageResponseModel> ExportProductType([FromBody] SearchProductTypeModel? data)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iProductType.ExportProductType(data, user_code);
+
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+
+            return msgResult;
+        }
+
     }
 }

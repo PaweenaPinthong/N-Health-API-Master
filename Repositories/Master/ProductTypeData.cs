@@ -11,7 +11,7 @@ namespace N_Health_API.Repositories.Master
 {
     public class ProductTypeData : IProductTypeData
     {
-        public async Task<bool> Add(ProductTypeModel? data, string? userCode)
+        public async Task<bool> Add(ProductTypeModel? data, string? userCode, bool? isImportexcel)
         {
             bool result = false;
 
@@ -22,10 +22,20 @@ namespace N_Health_API.Repositories.Master
                
                 if(data != null)
                 {
-                    string typeStr = "PT";
-                    var lastId = "select product_type_id from product_type where created_datetime is not null order by created_datetime desc limit 1";
-                    data.Product_Type_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
-                    arrSql.Add(lastId);
+                    if(isImportexcel == false)
+                    {
+                        string typeStr = "PT";
+                        var lastId = "select product_type_id from product_type where created_datetime is not null order by created_datetime desc limit 1";
+                        data.Product_Type_Code = $"{typeStr}{dateTime.ToString("MMyyyy-")}";
+                        arrSql.Add(lastId);
+                    }
+                    else
+                    {
+                        var lastIm= "select product_type_id from product_type where created_datetime is not null order by created_datetime desc limit 1";
+                        data.Product_Type_Code = data.Product_Type_Code;
+                        arrSql.Add(lastIm);
+                    }
+                    
                 }
 
                 var qInst = "INSERT INTO product_type " +
@@ -100,7 +110,7 @@ namespace N_Health_API.Repositories.Master
                 string msg = string.Empty;
                 var query = "select pt.*" +
                             " from product_type pt " +
-                            " where pt.product_type_name = '{0}'" + (data?.Product_Type_Id is null || (data?.Product_Type_Id <= 0) ? "" : " and pt.product_type_id != " + data?.Product_Type_Id);
+                            " where replace(pt.product_type_name,' ','') =  replace('{0}',' ','') " + (data?.Product_Type_Id is null || (data?.Product_Type_Id <= 0) ? "" : " and pt.product_type_id != " + data?.Product_Type_Id);
 
                 query = string.Format(query, data?.Product_Type_Name);
 
@@ -184,15 +194,16 @@ namespace N_Health_API.Repositories.Master
             }
         }
 
-        public async Task<(DataTable, long)> Search(SearchProductTypeModel? data)
+        public async Task<List<string>> QuerySearch(SearchProductTypeModel? data)
         {
-            MessageResponseModel mrg_res = new MessageResponseModel();
             try
             {
                 string condition = string.Empty;
                 string query = string.Empty;
 
-                if(data?.Active != null)
+                List<string> querylist = new List<string>();
+
+                if (data?.Active != null)
                 {
                     condition = string.Format(condition + " p.active = {0} ", data.Active);
                 }
@@ -208,26 +219,54 @@ namespace N_Health_API.Repositories.Master
                 }
 
                 string qField = "select " +
-                                " p.product_type_id " +
-                                " ,p.product_type_code " +
-                                " ,p.product_type_name " +
-                                " ,p.active " +
-                                " ,p.created_datetime " +
-                                " ,to_char(p.created_datetime:: timestamp,'DD/MM/YYYY') as created_date_str " +
-                                " ,p.created_by " +
-                                " ,concat(uc.\"name\",' ',uc.lastname) as  created_name " +
-                                " ,p.modified_datetime as update_date " +
-                                " ,to_char(p.modified_datetime :: timestamp,'DD/MM/YYYY') as  update_date_str " +
-                                " ,p.modified_by as update_by " +
-                                " ,concat(um.\"name\",' ',um.lastname) as  created_name ";
+                               " p.product_type_id " +
+                               " ,p.product_type_code " +
+                               " ,p.product_type_name " +
+                               " ,p.active " +
+                               " ,p.created_datetime " +
+                               " ,to_char(p.created_datetime:: timestamp,'DD/MM/YYYY') as created_date_str " +
+                               " ,p.created_by " +
+                               " ,concat(uc.\"name\",' ',uc.lastname) as  created_name " +
+                               " ,p.modified_datetime as update_date " +
+                               " ,to_char(p.modified_datetime :: timestamp,'DD/MM/YYYY') as  update_date_str " +
+                               " ,p.modified_by as update_by " +
+                               " ,concat(um.\"name\",' ',um.lastname) as  update_name ";
 
                 string qJoin = " from  product_type p left join userinfo uc on p.modified_by = uc.user_code " +
                                " left join userinfo um on p.modified_by = um.user_code ";
 
-                query = qField + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}") +
+                query = qField + qJoin +(string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+
+                querylist.Insert(0, condition);
+                querylist.Insert(1, query);
+
+                return querylist;
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<(DataTable, long)> Search(SearchProductTypeModel? data)
+        {
+            MessageResponseModel mrg_res = new MessageResponseModel();
+            try
+            {
+                string query = string.Empty;
+
+                List<string> querySearch = new List<string>();
+
+                querySearch = await QuerySearch(data);
+
+                string qJoin = " from  product_type p left join userinfo uc on p.modified_by = uc.user_code " +
+                               " left join userinfo um on p.modified_by = um.user_code ";
+
+                query = querySearch[1] +
                         $" ORDER BY p.modified_datetime DESC OFFSET (({data?.PageNumber}-1)*{data?.PageSize}) ROWS FETCH NEXT {data?.PageSize} ROWS ONLY;\r\n";
 
-                var totalRows = "select count(p.product_type_id) as count_rows " + qJoin + (string.IsNullOrEmpty(condition) ? "" : $" where {condition}");
+                var totalRows = "select count(p.product_type_id) as count_rows " + qJoin + (string.IsNullOrEmpty(querySearch[0]) ? "" : $" where {querySearch[0]}");
 
                 List<string> arrSql = new List<string>();
                 arrSql.Add(query);
@@ -235,6 +274,31 @@ namespace N_Health_API.Repositories.Master
                 var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
                 return result;
 
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<(DataTable, long)> SearchExport(SearchProductTypeModel? data)
+        {
+            MessageResponseModel mrg_res = new MessageResponseModel();
+            try
+            {
+                string query = string.Empty;
+
+                List<string> querySearch = new List<string>();
+
+                querySearch = await QuerySearch(data);
+
+                query = querySearch[1] + $" ORDER BY p.modified_datetime DESC;\r\n";
+
+                List<string> arrSql = new List<string>();
+                arrSql.Add(query);
+           
+                var result = await DBSQLPostgre.SQLPostgresSelectSearch(arrSql);
+                return result;
             }
             catch
             {

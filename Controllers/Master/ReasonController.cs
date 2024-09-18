@@ -6,6 +6,7 @@ using N_Health_API.Models.Shared;
 using N_Health_API.ServicesInterfece.Master;
 using N_Health_API.ServicesInterfece.Shared;
 using Swashbuckle.AspNetCore.Annotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace N_Health_API.Controllers.Master
 {
@@ -176,6 +177,73 @@ namespace N_Health_API.Controllers.Master
                 }
 
                 var result = await _iReason.SearchService(data);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+
+            return msgResult;
+        }
+
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Import Reason", Description = "Import Reason")]
+        [HttpPost("ImportReason")]
+        public async Task<MessageResponseModel> ImportReason(IFormFile? FileExcel)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                   return checkAuth_RES;
+                }
+
+                var result = await _iReason.ImportReasonService(FileExcel, user_code);
+                msgResult.Code = result.Code;
+                msgResult.Message = result.Message;
+                msgResult.Success = result.Success;
+                msgResult.Data = result.Data;
+            }
+            catch (Exception ex)
+            {
+                msgResult.Message = ex.Message;
+            }
+
+            return msgResult;
+        }
+
+        [SwaggerOperation(Tags = new[] { "Reason" }, Summary = "Import Reason", Description = "Import Reason")]
+        [HttpPost("ExportReason")]
+        public async Task<MessageResponseModel> ExportReason([FromBody] SearchReasonModel? data)
+        {
+            MessageResponseModel msgResult = new MessageResponseModel();
+            msgResult.Code = ReturnCode.SYSTEM_ERROR;
+            msgResult.Message = ReturnMessage.SYSTEM_ERROR;
+            msgResult.Success = false;
+
+            try
+            {
+                // header 
+                string? user_code = Request.Headers["UserCode"];
+                var checkAuth_RES = await _auth.CheckAuthService(Request.Headers[HeaderNames.Authorization], user_code);
+                if (!checkAuth_RES.Success)
+                {
+                    return checkAuth_RES;
+                }
+
+                var result = await _iReason.ExportReasonService(data, user_code);
+
                 msgResult.Code = result.Code;
                 msgResult.Message = result.Message;
                 msgResult.Success = result.Success;
