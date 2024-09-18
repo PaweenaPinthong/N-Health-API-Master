@@ -30,6 +30,8 @@ namespace N_Health_API.Models.Master
         public int? Product_Type_Id { get; set; }
         public string? Product_Type_Code { get; set; } = string.Empty;
         public string? Product_Type_Name { get; set; } = string.Empty;
+        public string? Product_Type_Code_Interface { get; set; } = string.Empty;
+        public bool? Sub_Product_Flag { get; set; }
         public bool? Active { get; set; }
         public DateTime? Created_DateTime { get; set; } = DateTime.Now;
         public string? Created_Date_Str { get; set; }

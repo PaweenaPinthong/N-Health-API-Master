@@ -307,14 +307,16 @@ namespace N_Health_API.Services.Master
                     var worksheet = package.Workbook.Worksheets.Add("Sheet1");
                     worksheet.Cells[1, 1].Value = "product_type_id";
                     worksheet.Cells[1, 2].Value = "product_type_code";
-                    worksheet.Cells[1, 3].Value = "product_type_name";
-                    worksheet.Cells[1, 4].Value = "active";
-                    worksheet.Cells[1, 5].Value = "created_by";
-                    worksheet.Cells[1, 6].Value = "created_name";
-                    worksheet.Cells[1, 7].Value = "created_datetime";
-                    worksheet.Cells[1, 8].Value = "update_by";
-                    worksheet.Cells[1, 9].Value = "update_name";
-                    worksheet.Cells[1, 10].Value = "update_datetime";
+                    worksheet.Cells[1, 3].Value = "Product_type_code_interface";
+                    worksheet.Cells[1, 4].Value = "product_type_name";
+                    worksheet.Cells[1, 5].Value = "sub_product_flag";
+                    worksheet.Cells[1, 6].Value = "active";
+                    worksheet.Cells[1, 7].Value = "created_by";
+                    worksheet.Cells[1, 8].Value = "created_name";
+                    worksheet.Cells[1, 9].Value = "created_datetime";
+                    worksheet.Cells[1, 10].Value = "update_by";
+                    worksheet.Cells[1, 11].Value = "update_name";
+                    worksheet.Cells[1, 12].Value = "update_datetime";
 
                     // เรียกข้อมูลใน db
                     var res = await _repo.SearchExport(data);
@@ -326,14 +328,16 @@ namespace N_Health_API.Services.Master
                     {
                         worksheet.Cells[i + 2, 1].Value = recordData[i].Product_Type_Id;
                         worksheet.Cells[i + 2, 2].Value = recordData[i].Product_Type_Code;
-                        worksheet.Cells[i + 2, 3].Value = recordData[i].Product_Type_Name;
-                        worksheet.Cells[i + 2, 4].Value = recordData[i].Active;
-                        worksheet.Cells[i + 2, 5].Value = recordData[i].Created_By;
-                        worksheet.Cells[i + 2, 6].Value = recordData[i].Created_Name;
-                        worksheet.Cells[i + 2, 7].Value = recordData[i].Created_Date_Str;
-                        worksheet.Cells[i + 2, 8].Value = recordData[i].Update_By;
-                        worksheet.Cells[i + 2, 9].Value = recordData[i].Update_Name;
-                        worksheet.Cells[i + 2, 10].Value = recordData[i].Update_Date_Str;
+                        worksheet.Cells[i + 2, 3].Value = recordData[i].Product_Type_Code_Interface;
+                        worksheet.Cells[i + 2, 4].Value = recordData[i].Product_Type_Name;
+                        worksheet.Cells[i + 2, 5].Value = recordData[i].Sub_Product_Flag;
+                        worksheet.Cells[i + 2, 6].Value = recordData[i].Active;
+                        worksheet.Cells[i + 2, 7].Value = recordData[i].Created_By;
+                        worksheet.Cells[i + 2, 8].Value = recordData[i].Created_Name;
+                        worksheet.Cells[i + 2, 9].Value = recordData[i].Created_Date_Str;
+                        worksheet.Cells[i + 2, 10].Value = recordData[i].Update_By;
+                        worksheet.Cells[i + 2, 11].Value = recordData[i].Update_Name;
+                        worksheet.Cells[i + 2, 12].Value = recordData[i].Update_Date_Str;
                     }
 
                     // บันทึกข้อมูลลงใน MemoryStream แบบ gen excel เป็น base64

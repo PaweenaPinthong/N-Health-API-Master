@@ -221,7 +221,9 @@ namespace N_Health_API.Repositories.Master
                 string qField = "select " +
                                " p.product_type_id " +
                                " ,p.product_type_code " +
+                               " ,p.product_type_code_interface " +
                                " ,p.product_type_name " +
+                               " ,p.sub_product_flag " +
                                " ,p.active " +
                                " ,p.created_datetime " +
                                " ,to_char(p.created_datetime:: timestamp,'DD/MM/YYYY') as created_date_str " +
